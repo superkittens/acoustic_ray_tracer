@@ -1,7 +1,7 @@
 #include "World.h"
 
 
-const float World::WORLD_SCALE = 10;
+const float World::WORLD_SCALE = 100;
 const float World::SNAP_DELTA = 50;
 
 
@@ -113,11 +113,11 @@ void World::buildWalls()
     ofVec2f prevPoint = _points.at(0);
     for (auto p = 1; p < _points.size(); ++p)
     {
-        _walls.push_back(Wall{prevPoint, _points.at(p)});
+        _walls.push_back(Wall{prevPoint, _points.at(p), WORLD_SCALE});
         prevPoint = _points.at(p);
     }
 
-    _walls.push_back(Wall{prevPoint, _points.at(0)});
+    _walls.push_back(Wall{prevPoint, _points.at(0), WORLD_SCALE});
     
     _worldOrigin = _points.at(0);
 }
@@ -126,7 +126,7 @@ void World::buildWalls()
 
 
 
-Wall::Wall(const ofVec2f& start, const ofVec2f& end) : _start{start}, _end{end}
+Wall::Wall(const ofVec2f& start, const ofVec2f& end, const float& scale) : _scale{scale}, _start{start}, _end{end}
 {
     //  Calculate unit and normal vectors
     _vector = end - start;
@@ -141,14 +141,15 @@ Wall::Wall(const ofVec2f& start, const ofVec2f& end) : _start{start}, _end{end}
    }
 }
 
-Wall::Wall(const Wall& arg) : _start{arg._start}, _end{arg._end}, _vector{arg._vector}, _normalVec{arg._normalVec}, _hasBoundingBox{arg._hasBoundingBox}, _boundingBox{arg._boundingBox}
+Wall::Wall(const Wall& arg) : _scale{arg._scale}, _start{arg._start}, _end{arg._end}, _vector{arg._vector}, _normalVec{arg._normalVec}, _hasBoundingBox{arg._hasBoundingBox}, _boundingBox{arg._boundingBox}
 {}
 
 void Wall::draw() const
 {
     ofSetColor(255, 255, 255);
+    ofSetLineWidth(10);
     ofDrawLine(_start, _end);
-    std::string lengthString = to_string(getLength()) + " m";
+    std::string lengthString = to_string(getLength() / _scale) + " m";
     ofDrawBitmapString(lengthString, ofVec2f{_start.x - 10, _start.y - 10});
 
     //  Draw normal vector

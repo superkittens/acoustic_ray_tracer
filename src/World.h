@@ -20,6 +20,8 @@
 class Wall
 {
 private:
+    float   _scale;
+
     ofVec2f _start;
     ofVec2f _end;
     ofVec2f _vector;
@@ -31,7 +33,7 @@ private:
     ofVec2f calculatePointNormal(const ofVec2f& point) const;
 
 public:
-    Wall(const ofVec2f& start, const ofVec2f& end);
+    Wall(const ofVec2f& start, const ofVec2f& end, const float& scale);
     Wall(const Wall& arg);
 
     ofVec2f getStart() const { return _start; }

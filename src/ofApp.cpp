@@ -1,5 +1,8 @@
 #include "ofApp.h"
 
+const float ofApp::MAX_SIMULATION_TIME = 1.f;
+const float ofApp::SAMPLING_FREQ = 44100.f;
+
 //--------------------------------------------------------------
 void ofApp::setup(){
 
@@ -8,7 +11,13 @@ void ofApp::setup(){
 //--------------------------------------------------------------
 void ofApp::update(){
     if (solver.get() != nullptr)
-        solver->update();
+    {
+        while(solver->getSimulationStatus())
+        {
+            solver->update();
+        }
+        // solver->update();
+    }
 
     if (world.getWorldBuildState() == World::BUILT)
     {
@@ -40,7 +49,13 @@ void ofApp::draw(){
         emitter->draw();
 
     if (solver.get() != nullptr)
+    {
         solver->draw();
+        std::string simTime = "Time: " + to_string(solver->getSimulationTime()) + " sec";
+        ofDrawBitmapString(simTime, 100, ofGetHeight() - 100);
+
+        drawIR();
+    }
 
 }
 
@@ -66,7 +81,7 @@ void ofApp::keyPressed(int key){
         case 's':
         if (emitter.get() != nullptr && listener.get() != nullptr)
         {
-            solver = std::make_unique<Solver>(&world, listener, emitter, 0.1, 1);
+            solver = std::make_unique<Solver>(&world, listener, emitter, 1.f / SAMPLING_FREQ, MAX_SIMULATION_TIME);
         }
         break;
 
@@ -157,4 +172,34 @@ void ofApp::gotMessage(ofMessage msg){
 //--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo){ 
 
+}
+
+void ofApp::drawIR() {
+    //  Draw impulse response
+    auto leftIR = solver->getImpulseResponse(LEFT);
+    auto rightIR = solver->getImpulseResponse(RIGHT);
+
+    const float offsetLeft = 1000;
+    const float offsetRight = 1200;
+
+    ofSetColor(255, 255, 255);
+    ofSetLineWidth(1);
+    ofDrawLine(ofVec2f(0, offsetLeft), ofVec2f(ofGetWidth(), offsetLeft));
+    ofDrawLine(ofVec2f(0, offsetRight), ofVec2f(ofGetWidth(), offsetRight));
+
+    ofSetColor(210, 84, 143);
+
+    for (auto i = 0; i < leftIR.size(); ++i)
+    {
+        const float length = leftIR.at(i) * 200.f;
+        ofVec2f point(i, offsetLeft - length);
+        ofDrawLine(ofVec2f(i, offsetLeft), point);
+    }
+
+    for (auto i = 0; i < rightIR.size(); ++i)
+    {
+        const float length = rightIR.at(i) * 200.f;
+        ofVec2f point(i, offsetRight - length);
+        ofDrawLine(ofVec2f(i, offsetRight), point);
+    }
 }

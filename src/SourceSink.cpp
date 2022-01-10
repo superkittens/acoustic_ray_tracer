@@ -1,6 +1,7 @@
 #include "SourceSink.h"
 
 const float Positioning::RADIUS = 15;
+const float Listener::DETECT_RADIUS = 30;
 
 void Positioning::grab(const ofVec2f& cursorPos)
 {
@@ -39,9 +40,21 @@ void Listener::draw() const
     ofDrawCircle(_coordinates, RADIUS);
 }
 
-bool Listener::checkRayCollision(const ofVec2f& ray)
+std::pair<bool, Direction> Listener::checkRayCollision(const ofVec2f& ray) const
 {
-    return true;
+    const ofVec2f delta = ray - _coordinates;
+
+    //  If ray is within the listener's listening bounds
+    if (delta.length() <= DETECT_RADIUS)
+    {
+        //  Get direction
+        if (delta.x >= 0)
+            return {true, RIGHT};
+        else
+            return {true, LEFT};
+    }
+
+    return {false, LEFT};
 }
 
 

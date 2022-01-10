@@ -4,6 +4,12 @@
 #ifndef _SOURCE_SINK_H
 #define _SOURCE_SINK_H
 
+typedef enum
+{
+    LEFT = 0,
+    RIGHT
+}Direction;
+
 
 class Positioning
 {
@@ -44,7 +50,10 @@ class Listener : public Positioning
     ~Listener() = default;
 
     void draw() const override;
-    bool checkRayCollision(const ofVec2f& ray);
+    std::pair<bool, Direction> checkRayCollision(const ofVec2f& ray) const;
+
+    protected:
+    static const float DETECT_RADIUS;
 };
 
 

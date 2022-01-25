@@ -1,9 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
-#include "World.h"
-#include "SourceSink.h"
-#include "Solver.h"
+#include "MainWindow.h"
 
 class ofApp : public ofBaseApp{
 
@@ -25,14 +23,15 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 	
 	private:
-		static const float MAX_SIMULATION_TIME;
-		static const float SAMPLING_FREQ;
-		World world;
-		std::shared_ptr<Listener> listener;
-		std::shared_ptr<Emitter> emitter;
-		std::unique_ptr<Solver> solver;
+		// static const float MAX_SIMULATION_TIME;
+		// static const float SAMPLING_FREQ;
+		// World world;
+		// std::shared_ptr<Listener> listener;
+		// std::shared_ptr<Emitter> emitter;
+		// std::unique_ptr<Solver> solver;
 
-		Positioning ind;
+		// Positioning ind;
 
-		void drawIR();
+		// void drawIR();
+		MainWindow _mainWindow;
 };

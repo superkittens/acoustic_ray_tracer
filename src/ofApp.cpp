@@ -1,152 +1,135 @@
 #include "ofApp.h"
 
-const float ofApp::MAX_SIMULATION_TIME = 1.f;
-const float ofApp::SAMPLING_FREQ = 44100.f;
+// const float ofApp::MAX_SIMULATION_TIME = 1.f;
+// const float ofApp::SAMPLING_FREQ = 44100.f;
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-
+    _mainWindow.setup();
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
-    if (solver.get() != nullptr)
-    {
-        while(solver->getSimulationStatus())
-        {
-            solver->update();
-        }
-        // solver->update();
-    }
+    // if (solver.get() != nullptr)
+    // {
+    //     // while(solver->getSimulationStatus())
+    //     // {
+    //     //     solver->update();
+    //     // }
+    //     solver->update();
+    // }
 
-    if (world.getWorldBuildState() == World::BUILT)
-    {
-        const auto walls = world.getWalls();
-        bool indOutsideWall = false;
-        for (const auto &w : walls)
-        {
-            bool status = w.isPointOutsideWall(ind.getCoordinates());
-            if (status)
-                indOutsideWall = true;
-        }
+    // if (world.getWorldBuildState() == World::BUILT)
+    // {
+    //     const auto walls = world.getWalls();
+    //     bool indOutsideWall = false;
+    //     for (const auto &w : walls)
+    //     {
+    //         bool status = w.isPointOutsideWall(ind.getCoordinates());
+    //         if (status)
+    //             indOutsideWall = true;
+    //     }
 
-        if (indOutsideWall)
-            ind.setColor(ofColor(0, 255, 255));
-        else
-            ind.setColor(ofColor(255, 255, 255));
-    }
+    //     if (indOutsideWall)
+    //         ind.setColor(ofColor(0, 255, 255));
+    //     else
+    //         ind.setColor(ofColor(255, 255, 255));
+    // }
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    world.draw();
-    ind.draw();
-
-    if (listener.get() != nullptr)
-        listener->draw();
-    
-    if (emitter.get() != nullptr)
-        emitter->draw();
-
-    if (solver.get() != nullptr)
-    {
-        solver->draw();
-        std::string simTime = "Time: " + to_string(solver->getSimulationTime()) + " sec";
-        ofDrawBitmapString(simTime, 100, ofGetHeight() - 100);
-
-        drawIR();
-    }
-
+    _mainWindow.draw();
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-    switch (key)
-    {
-        case 'w':
-        world.startWorldBuilding();
-        break;
+    // switch (key)
+    // {
+    //     case 'w':
+    //     world.startWorldBuilding();
+    //     break;
 
-        case 'l':
-        if (listener.get() == nullptr)
-            listener = std::make_shared<Listener>(ofVec2f{world.getWorldOrigin()});
-        break;
+    //     case 'l':
+    //     if (listener.get() == nullptr)
+    //         listener = std::make_shared<Listener>(ofVec2f{world.getWorldOrigin()});
+    //     break;
 
-        case 'e':
-        if (emitter.get() == nullptr)
-            emitter = std::make_shared<Emitter>(ofVec2f{world.getWorldOrigin()});
-        break;
+    //     case 'e':
+    //     if (emitter.get() == nullptr)
+    //         emitter = std::make_shared<Emitter>(ofVec2f{world.getWorldOrigin()});
+    //     break;
 
-        //  Start simulation
-        case 's':
-        if (emitter.get() != nullptr && listener.get() != nullptr)
-        {
-            solver = std::make_unique<Solver>(&world, listener, emitter, 1.f / SAMPLING_FREQ, MAX_SIMULATION_TIME);
-        }
-        break;
+    //     //  Start simulation
+    //     case 's':
+    //     if (emitter.get() != nullptr && listener.get() != nullptr)
+    //     {
+    //         solver = std::make_unique<Solver>(&world, listener, emitter, 1.f / SAMPLING_FREQ, MAX_SIMULATION_TIME);
+    //     }
+    //     break;
 
-        //  Shift key
-        case 1:
-        world.setLineLock(true);
-        break;
+    //     //  Shift key
+    //     case 1:
+    //     world.setLineLock(true);
+    //     break;
 
-        default:
-        break;
-    }
+    //     default:
+    //     break;
+    // }
 }
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
 
-    switch (key)
-    {
-        case 1:
-        world.setLineLock(false);
-        break;
+    // switch (key)
+    // {
+    //     case 1:
+    //     world.setLineLock(false);
+    //     break;
 
-        default:
-        break;
-    }
+    //     default:
+    //     break;
+    // }
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y ){
-    world.setCursor(ofVec2f(x, y));
+    _mainWindow.mouseMoved(ofVec2f(x, y));
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button){
-    if (listener.get() != nullptr)
-        listener->move(ofVec2f(x, y));
+    // if (listener.get() != nullptr)
+    //     listener->move(ofVec2f(x, y));
     
-    if (emitter.get() != nullptr)
-        emitter->move(ofVec2f(x, y));
+    // if (emitter.get() != nullptr)
+    //     emitter->move(ofVec2f(x, y));
 
-    ind.move(ofVec2f(x, y));
+    // ind.move(ofVec2f(x, y));
 }
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
-    world.setPoint();
+    // world.setPoint();
 
-    if (listener.get() != nullptr)
-        listener->grab(ofVec2f(x, y));
+    // if (listener.get() != nullptr)
+    //     listener->grab(ofVec2f(x, y));
 
-    if (emitter.get() != nullptr)
-        emitter->grab(ofVec2f(x, y));
+    // if (emitter.get() != nullptr)
+    //     emitter->grab(ofVec2f(x, y));
 
-    ind.grab(ofVec2f(x, y));
+    // ind.grab(ofVec2f(x, y));
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
-    if (listener.get() != nullptr)
-        listener->release();
+    // if (listener.get() != nullptr)
+    //     listener->release();
     
-    if (emitter.get() != nullptr)
-        emitter->release();
+    // if (emitter.get() != nullptr)
+    //     emitter->release();
 
-    ind.release();
+    // ind.release();
 }
 
 //--------------------------------------------------------------
@@ -172,34 +155,4 @@ void ofApp::gotMessage(ofMessage msg){
 //--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo){ 
 
-}
-
-void ofApp::drawIR() {
-    //  Draw impulse response
-    auto leftIR = solver->getImpulseResponse(LEFT);
-    auto rightIR = solver->getImpulseResponse(RIGHT);
-
-    const float offsetLeft = 1000;
-    const float offsetRight = 1200;
-
-    ofSetColor(255, 255, 255);
-    ofSetLineWidth(1);
-    ofDrawLine(ofVec2f(0, offsetLeft), ofVec2f(ofGetWidth(), offsetLeft));
-    ofDrawLine(ofVec2f(0, offsetRight), ofVec2f(ofGetWidth(), offsetRight));
-
-    ofSetColor(210, 84, 143);
-
-    for (auto i = 0; i < leftIR.size(); ++i)
-    {
-        const float length = leftIR.at(i) * 200.f;
-        ofVec2f point(i, offsetLeft - length);
-        ofDrawLine(ofVec2f(i, offsetLeft), point);
-    }
-
-    for (auto i = 0; i < rightIR.size(); ++i)
-    {
-        const float length = rightIR.at(i) * 200.f;
-        ofVec2f point(i, offsetRight - length);
-        ofDrawLine(ofVec2f(i, offsetRight), point);
-    }
 }

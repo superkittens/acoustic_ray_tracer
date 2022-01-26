@@ -8,21 +8,21 @@ class WorldView
 {
     public:
     void setCursor(const ofVec2f& position);
-    void setStraightLine(bool setting) { _drawStraightLines = setting; }
 
-    void drawRoomSoFar();
-    void drawSimulatedResult();
+    void    drawEmptyWindow() const;
+    void    drawRoomSoFar(const std::vector<ofVec2f>& points) const;
+    void    drawSimulatedResult();
+    bool    withinBounds(const ofVec2f& position) const;
 
 
     private:
-    static const ofVec2f _windowOffset;
-    static const ofVec2f _windowDimensions;
+    static const ofVec2f    _windowOffset;
+    static const ofVec2f    _windowDimensions;
+    static const float      CROSSHAIR_LENGTH;
     
     ofVec2f _cursorPosition;
-    bool    _drawStraightLines;
 
-    void    drawWindow();
-    bool    cursorInBounds(const ofVec2f& position) const;
+    void    drawWindow() const;
 };
 
 #endif

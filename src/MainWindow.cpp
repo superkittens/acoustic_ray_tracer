@@ -15,6 +15,7 @@ void MainWindow::setup()
     _roomBuildPanel.add(_worldScaleSlider.setup("Scale (m / px", 1.0, 1.0, MAX_SCALE, SLIDER_WIDTH, SLIDER_HEIGHT));
 
     _createRoomButton.addListener(&_controller, &RTController::onCreateRoomClicked);
+    _worldScaleSlider.addListener(&_controller, &RTController::onWorldScaleSliderChanged);
 }
 
 void MainWindow::mouseMoved(const ofVec2f& position)

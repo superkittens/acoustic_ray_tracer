@@ -9,13 +9,19 @@ void RTController::mouseMoved(const ofVec2f& position)
     {
         case ROOM_BUILD:
         {
-            auto cursorPos = position;
-            auto vertices = _model.getRoomVertices();
+            if (_worldView.withinBounds(position))
+            {
+                auto cursorPos = position;
+                
+                if (_drawStraightLines)
+                {
+                    cursorPos = snapCursor(cursorPos);
+                    cursorPos = snapCursorToFirstPoint(cursorPos);
+                }
+                
+                _worldView.setCursor(cursorPos);
+            }
             
-            if (_drawStraightLines)
-                cursorPos = snapCursor(cursorPos);
-            
-            _worldView.setCursor(cursorPos);
             break;
         }
             
@@ -35,8 +41,27 @@ void RTController::mouseClicked(const ofVec2f& position, const int button)
             if (_worldView.withinBounds(position))
             {
                 if (_drawStraightLines)
+                {
                     point = snapCursor(point);
+                    point = snapCursorToFirstPoint(point);
+                }
                 
+                //  First check to see if the point is the first point
+                //  If it is, then that means the room is closed and we can start building the room and move onto the NORMAL state
+                const auto points = _model.getRoomVertices();
+                if (!points.empty())
+                {
+                    if (point == points.at(0))
+                    {
+                        _currentState = NORMAL;
+                        
+                        _model.buildRoom(_worldView.getWindowOrigin());
+                        _model.clearRoomVertices();
+                        
+                        break;
+                    }
+                }
+                    
                 _model.addRoomVertex(point);
             }
             
@@ -97,7 +122,17 @@ void RTController::draw() const
 
         case ROOM_BUILD:
         {
-            _worldView.drawRoomSoFar(_model.getRoomVertices());
+            //  Package data relevant to drawing the incomplete room
+            auto data = std::make_tuple(_model.getRoomVertices(), _model.getWorldScale());
+            _worldView.drawRoomSoFar(data);
+            break;
+        }
+            
+        case NORMAL:
+        {
+            //  Package data for drawing the room
+            auto data = std::make_tuple(_model.getRoom(), _model.getWorldScale());
+            _worldView.drawNormalState(data);
             break;
         }
             
@@ -110,6 +145,11 @@ void RTController::onCreateRoomClicked()
 {
     if (_currentState == START)
         _currentState = ROOM_BUILD;
+}
+
+void RTController::onWorldScaleSliderChanged(float& value)
+{
+    _model.setWorldScale(value);
 }
 
 ofVec2f RTController::snapCursor(const ofVec2f& cursorPos)
@@ -128,4 +168,23 @@ ofVec2f RTController::snapCursor(const ofVec2f& cursorPos)
     }
     
     return outputCursor;
+}
+
+
+ofVec2f RTController::snapCursorToFirstPoint(const ofVec2f& cursorPos)
+{
+    const auto points = _model.getRoomVertices();
+    if (!points.empty())
+    {
+        const auto firstPoint = points.front();
+        if (cursorPos.x <= firstPoint.x + SNAP_THRESHOLD &&
+            cursorPos.x >= firstPoint.x - SNAP_THRESHOLD &&
+            cursorPos.y <= firstPoint.y + SNAP_THRESHOLD &&
+            cursorPos.y >= firstPoint.y - SNAP_THRESHOLD)
+        {
+            return firstPoint;
+        }
+    }
+    
+    return cursorPos;
 }

@@ -24,6 +24,7 @@ class RTController
     void keyReleased(const int key);
 
     void onCreateRoomClicked();
+    void onWorldScaleSliderChanged(float& value);
 
     private:
     static const float SNAP_THRESHOLD;
@@ -36,6 +37,7 @@ class RTController
     bool        _drawStraightLines = false;
     
     ofVec2f snapCursor(const ofVec2f& cursorPos);
+    ofVec2f snapCursorToFirstPoint(const ofVec2f& cursorPos);
 };
 
 #endif

@@ -2,14 +2,16 @@
 
 #include "Room.h"
 
-Wall::Wall(const ofVec2f& start, const ofVec2f& end, const float& scale) : _scale{scale}, _start{start}, _end{end}
+Wall::Wall(const ofVec2f& start, const ofVec2f& end) :  _start{start}, _end{end}
 {
     //  Calculate unit and normal vectors
     _vector = end - start;
     ofVec2f vectorCopy = _vector;
+    
+    //  TODO:  Calculate normal without dependency on making walls in a clockwise fashion
     _normalVec = vectorCopy.perpendicular();
 
-    //  If the wall is a horizontal/vertical line, add a bounding box
+    //  If the wall is not a horizontal/vertical line, add a bounding box
    if (start.x != end.x && start.y != end.y)
    {
        _hasBoundingBox = true;
@@ -17,7 +19,7 @@ Wall::Wall(const ofVec2f& start, const ofVec2f& end, const float& scale) : _scal
    }
 }
 
-Wall::Wall(const Wall& arg) : _scale{arg._scale}, _start{arg._start}, _end{arg._end}, _vector{arg._vector}, _normalVec{arg._normalVec}, _hasBoundingBox{arg._hasBoundingBox}, _boundingBox{arg._boundingBox}
+Wall::Wall(const Wall& arg) : _start{arg._start}, _end{arg._end}, _vector{arg._vector}, _normalVec{arg._normalVec}, _hasBoundingBox{arg._hasBoundingBox}, _boundingBox{arg._boundingBox}
 {}
 
 ofVec2f Wall::calculatePointNormal(const ofVec2f& point) const
@@ -44,12 +46,26 @@ bool Wall::isPointOutsideWall(const ofVec2f& point) const
 }
 
 
-Room::Room(const std::vector<ofVec2f>& points) 
-{
 
-}
 
 void Room::buildRoom(const std::vector<ofVec2f>& points)
 {
+    if (points.empty())
+        return;
     
+    ofVec2f prevPoint = points.at(0);
+    for (auto p = 1; p < points.size(); ++p)
+    {
+        _walls.push_back(Wall{prevPoint, points.at(p)});
+        prevPoint = points.at(p);
+    }
+    
+    _walls.push_back(Wall{prevPoint, points.at(0)});
 }
+
+void Room::reset()
+{
+    _walls.clear();
+    _roomOriginCoordinate = ofVec2f(0.0, 0.0);
+}
+

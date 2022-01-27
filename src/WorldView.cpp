@@ -15,7 +15,7 @@ void WorldView::drawEmptyWindow() const
     drawWindow();
 }
 
-void WorldView::drawRoomSoFar(const std::vector<ofVec2f>& points) const
+void WorldView::drawRoomSoFar(const std::tuple<const std::vector<ofVec2f>&, const float>& roomDrawData) const
 {   
     //  Draw crosshairs on cursor
     drawWindow();
@@ -23,6 +23,10 @@ void WorldView::drawRoomSoFar(const std::vector<ofVec2f>& points) const
     ofSetLineWidth(1.0);
     ofDrawLine(_cursorPosition.x, _cursorPosition.y - CROSSHAIR_LENGTH, _cursorPosition.x, _cursorPosition.y + CROSSHAIR_LENGTH);
     ofDrawLine(_cursorPosition.x - CROSSHAIR_LENGTH, _cursorPosition.y, _cursorPosition.x + CROSSHAIR_LENGTH, _cursorPosition.y);
+    
+    //  Unpack the tuple
+    const std::vector<ofVec2f>& points = std::get<0>(roomDrawData);
+    const float worldScale = std::get<1>(roomDrawData);
     
     //  Draw walls
     ofSetLineWidth(5.0);
@@ -34,9 +38,52 @@ void WorldView::drawRoomSoFar(const std::vector<ofVec2f>& points) const
             ofDrawLine(prevPoint, points.at(i));
             prevPoint = points.at(i);
         }
-        
+
         //  Draw a line between the last point and the cursor position
         ofDrawLine(prevPoint, _cursorPosition);
+        
+        //  Draw length of wall on screen
+        auto lastPoint = points.back();
+        const auto wallLength = _cursorPosition - lastPoint;
+        std::string wallLengthString = to_string(wallLength.length() * worldScale) + " m";
+        ofDrawBitmapString(wallLengthString, _cursorPosition.x + 10, _cursorPosition.y - 10);
+    }
+
+    //  Draw coordinates on screen
+    auto worldViewCoordinate = _cursorPosition - _windowOffset;
+    std::string coordinatesString = "( " + to_string(worldViewCoordinate.x) + " , " + to_string(worldViewCoordinate.y) + " )";
+    ofDrawBitmapString(coordinatesString, _windowOffset.x + 10, _windowOffset.y + _windowDimensions.y - 10);
+}
+
+void WorldView::drawNormalState(const std::tuple<const Room&, const float>& data) const
+{
+    drawWindow();
+    
+    //  Unpack the tuple
+    const Room& room = std::get<0>(data);
+    const float worldScale = std::get<1>(data);
+    
+    //  Draw walls
+    ofSetLineWidth(5.0);
+    
+    const auto& walls = room.getWalls();
+    const auto roomOrigin = room.getOrigin();
+    
+    for (auto& wall : walls)
+    {
+        //  Wall coordinates are in room space, not pixel space so we need to make the conversion here
+        const auto startPoint = wall.getStart() + roomOrigin;
+        const auto endPoint = wall.getEnd() + roomOrigin;
+        
+        //  Draw wall
+        ofSetColor(255, 255, 255);
+        ofDrawLine(startPoint, endPoint);
+        
+        //  Draw Normal Vector
+        ofSetColor(255, 127, 0);
+        const auto normalStartPoint = 0.5 * wall.getVector() + startPoint;
+        const auto normalEndPoint = normalStartPoint + (20.0 * wall.getNormalUnitVector());
+        ofDrawLine(normalStartPoint, normalEndPoint);
     }
 }
 

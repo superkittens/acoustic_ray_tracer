@@ -84,6 +84,11 @@ void WorldView::drawNormalState(const std::tuple<const Room&, const float>& data
         const auto normalStartPoint = 0.5 * wall.getVector() + startPoint;
         const auto normalEndPoint = normalStartPoint + (20.0 * wall.getNormalUnitVector());
         ofDrawLine(normalStartPoint, normalEndPoint);
+        
+        //  Draw length of wall
+        ofSetColor(255, 255, 255);
+        std::string wallLengthString = to_string(wall.getLength() * worldScale) + " m";
+        ofDrawBitmapString(wallLengthString, normalStartPoint.x + 10, normalStartPoint.y - 20);
     }
 }
 

@@ -1,6 +1,6 @@
 #include "MainWindow.h"
 
-const float MainWindow::MAX_SCALE = 100.0;
+const float MainWindow::MAX_SCALE = 10.0;
 const float MainWindow::SLIDER_WIDTH = 0;
 const float MainWindow::SLIDER_HEIGHT = 100;
 
@@ -12,7 +12,7 @@ void MainWindow::setup()
     _roomBuildPanel.add(_addSourceButton.setup(("Add Source")));
     _roomBuildPanel.add(_addListenerButton.setup("Add Listener"));
     _roomBuildPanel.add(_clearRoomButton.setup("Clear"));
-    _roomBuildPanel.add(_worldScaleSlider.setup("Scale (m / px", 1.0, 1.0, MAX_SCALE, SLIDER_WIDTH, SLIDER_HEIGHT));
+    _roomBuildPanel.add(_worldScaleSlider.setup("Scale (m / px", 0.01, 0.1, MAX_SCALE, SLIDER_WIDTH, SLIDER_HEIGHT));
 
     _createRoomButton.addListener(&_controller, &RTController::onCreateRoomClicked);
     _worldScaleSlider.addListener(&_controller, &RTController::onWorldScaleSliderChanged);

@@ -35,6 +35,16 @@ void WorldView::drawRoomSoFar(const std::tuple<const std::vector<ofVec2f>&, cons
         ofVec2f prevPoint = points.at(0);
         for (auto i = 1; i < points.size(); ++i)
         {
+            //  Draw coordinates of each vertex
+            ofVec2f pointWorldView = prevPoint - _windowOffset;
+            std::string coordinateString = "( " + to_string(pointWorldView.x) + " , " + to_string(pointWorldView.y) + " )";
+            ofDrawBitmapString(coordinateString, prevPoint.x, prevPoint.y - 10);
+            
+            auto currentPoint = points.at(i);
+            pointWorldView = currentPoint - _windowOffset;
+            coordinateString = "( " + to_string(pointWorldView.x) + " , " + to_string(pointWorldView.y) + " )";
+            ofDrawBitmapString(coordinateString, currentPoint.x, currentPoint.y - 10);
+            
             ofDrawLine(prevPoint, points.at(i));
             prevPoint = points.at(i);
         }

@@ -22,7 +22,7 @@ class RTModel
 
     private:
     std::vector<ofVec2f> _points;
-    float _worldScale = 1.0;
+    float _worldScale = 0.01;
     
     Room _room;
 };

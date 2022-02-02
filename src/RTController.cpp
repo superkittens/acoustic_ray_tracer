@@ -231,9 +231,9 @@ ofVec2f RTController::snapCursor(const ofVec2f& cursorPos)
     {
         const auto lastPoint = vertices.back();
         
-        if (cursorPos.x > lastPoint.x + SNAP_THRESHOLD || cursorPos.x < lastPoint.x - SNAP_THRESHOLD)
+        if ((cursorPos.x > lastPoint.x + SNAP_THRESHOLD || cursorPos.x < lastPoint.x - SNAP_THRESHOLD) && (cursorPos.y >= lastPoint.y - SNAP_THRESHOLD && cursorPos.y <= lastPoint.y + SNAP_THRESHOLD))
             outputCursor.y = lastPoint.y;
-        if (cursorPos.y > lastPoint.y + SNAP_THRESHOLD || cursorPos.y < lastPoint.y - SNAP_THRESHOLD)
+        if ((cursorPos.y > lastPoint.y + SNAP_THRESHOLD || cursorPos.y > lastPoint.y - SNAP_THRESHOLD) && (cursorPos.x >= lastPoint.x - SNAP_THRESHOLD && cursorPos.x <= lastPoint.x + SNAP_THRESHOLD))
             outputCursor.x = lastPoint.x;
     }
     

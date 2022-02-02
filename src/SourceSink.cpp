@@ -7,7 +7,7 @@ void Positioning::grab(const ofVec2f& cursorPos)
 {
     //  If the simulation is happening, then the listener should be in a locked state
     //  And this function will do nothing
-    if (_currentState == UNLOCKED && !_isGrabbed)
+    if (!_isGrabbed)
     {
         ofVec2f delta = cursorPos - _coordinates;
         if (delta.length() <= RADIUS)
@@ -22,23 +22,11 @@ void Positioning::release()
 
 void Positioning::move(const ofVec2f& point)
 {
-    if (_isGrabbed && _currentState == UNLOCKED)
+    if (_isGrabbed)
         _coordinates = point;
 }
 
-void Positioning::draw() const
-{
-    ofSetColor(_color);
-    ofDrawCircle(_coordinates, RADIUS);
-}
 
-
-
-void Listener::draw() const
-{
-    ofSetColor(72, 128, 184);
-    ofDrawCircle(_coordinates, RADIUS);
-}
 
 std::pair<bool, Direction> Listener::checkRayCollision(const ofVec2f& ray) const
 {
@@ -55,11 +43,4 @@ std::pair<bool, Direction> Listener::checkRayCollision(const ofVec2f& ray) const
     }
 
     return {false, LEFT};
-}
-
-
-void Emitter::draw() const
-{
-    ofSetColor(233, 115, 83);
-    ofDrawCircle(_coordinates, RADIUS);
 }

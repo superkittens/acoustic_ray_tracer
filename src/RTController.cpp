@@ -68,6 +68,18 @@ void RTController::mouseClicked(const ofVec2f& position, const int button)
             break;
         }
             
+        case NORMAL:
+        {
+            //  Grab sources or listeners (if applicable)
+            for (auto& source: _model.getSoundSources())
+                source.grab(position);
+            
+            for (auto& listener: _model.getListeners())
+                listener.grab(position);
+            
+            break;
+        }
+            
         default:
             break;
     }
@@ -75,7 +87,47 @@ void RTController::mouseClicked(const ofVec2f& position, const int button)
 
 void RTController::mouseDragged(const ofVec2f& position, const int button)
 {
+    switch (_currentState)
+    {
+        case START:
+            break;
+            
+        case NORMAL:
+        {
+            for (auto& source : _model.getSoundSources())
+                source.move(position);
+            
+            for (auto& listener : _model.getListeners())
+                listener.move(position);
+            break;
+        }
+            
+        default:
+            break;
+    }
+}
 
+void RTController::mouseReleased(const ofVec2f& position, const int button)
+{
+    switch (_currentState)
+    {
+        case START:
+            break;
+            
+        case NORMAL:
+        {
+            for (auto& source : _model.getSoundSources())
+                source.release();
+            
+            for (auto& listener : _model.getListeners())
+                listener.release();
+            
+            break;
+        }
+            
+        default:
+            break;
+    }
 }
 
 void RTController::keyPressed(const int key)
@@ -131,7 +183,7 @@ void RTController::draw() const
         case NORMAL:
         {
             //  Package data for drawing the room
-            auto data = std::make_tuple(_model.getRoom(), _model.getWorldScale());
+            auto data = std::make_tuple(_model.getRoom(), _model.getWorldScale(), _model.getSoundSources(), _model.getListeners());
             _worldView.drawNormalState(data);
             break;
         }
@@ -150,6 +202,24 @@ void RTController::onCreateRoomClicked()
 void RTController::onWorldScaleSliderChanged(float& value)
 {
     _model.setWorldScale(value);
+}
+
+void RTController::onClearRoomClicked()
+{
+    _currentState = START;
+    _model.reset();
+}
+
+void RTController::onAddSourceClicked()
+{
+    if (_currentState == NORMAL)
+        _model.addSoundSource();
+}
+
+void RTController::onAddListenerClicked()
+{
+    if (_currentState == NORMAL)
+        _model.addListener();
 }
 
 ofVec2f RTController::snapCursor(const ofVec2f& cursorPos)

@@ -65,13 +65,15 @@ void WorldView::drawRoomSoFar(const std::tuple<const std::vector<ofVec2f>&, cons
     ofDrawBitmapString(coordinatesString, _windowOffset.x + 10, _windowOffset.y + _windowDimensions.y - 10);
 }
 
-void WorldView::drawNormalState(const std::tuple<const Room&, const float>& data) const
+void WorldView::drawNormalState(const std::tuple<const Room&, const float, const std::vector<Source>&, const std::vector<Listener>&>& data) const
 {
     drawWindow();
     
     //  Unpack the tuple
     const Room& room = std::get<0>(data);
     const float worldScale = std::get<1>(data);
+    const std::vector<Source>& sources = std::get<2>(data);
+    const std::vector<Listener>& listeners = std::get<3>(data);
     
     //  Draw walls
     ofSetLineWidth(5.0);
@@ -99,6 +101,26 @@ void WorldView::drawNormalState(const std::tuple<const Room&, const float>& data
         ofSetColor(255, 255, 255);
         std::string wallLengthString = to_string(wall.getLength() * worldScale) + " m";
         ofDrawBitmapString(wallLengthString, normalStartPoint.x + 10, normalStartPoint.y - 20);
+    }
+    
+    //  Draw sources, listeners and their IDs
+    for (const auto& source : sources)
+    {
+        ofSetColor(source.getColor());
+        ofDrawCircle(source.getCoordinates(), source.getRadius());
+        
+        ofSetColor(255, 255, 255);
+        std::string idString = to_string(source.getId());
+        ofDrawBitmapString(idString, source.getCoordinates());
+    }
+    
+    for (const auto& listener: listeners)
+    {
+        ofSetColor(listener.getColor());
+        ofDrawCircle(listener.getCoordinates(), listener.getRadius());
+        
+        std::string idString = to_string(listener.getId());
+        ofDrawBitmapString(idString, listener.getCoordinates());
     }
 }
 

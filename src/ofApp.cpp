@@ -45,7 +45,7 @@ void ofApp::mousePressed(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
-
+    _mainWindow.mouseReleased(ofVec2f(x, y), button);
 }
 
 //--------------------------------------------------------------

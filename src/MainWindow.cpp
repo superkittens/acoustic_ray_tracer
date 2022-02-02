@@ -16,6 +16,9 @@ void MainWindow::setup()
 
     _createRoomButton.addListener(&_controller, &RTController::onCreateRoomClicked);
     _worldScaleSlider.addListener(&_controller, &RTController::onWorldScaleSliderChanged);
+    _clearRoomButton.addListener(&_controller, &RTController::onClearRoomClicked);
+    _addSourceButton.addListener(&_controller, &RTController::onAddSourceClicked);
+    _addListenerButton.addListener(&_controller, &RTController::onAddListenerClicked);
 }
 
 void MainWindow::mouseMoved(const ofVec2f& position)
@@ -31,6 +34,11 @@ void MainWindow::mouseClicked(const ofVec2f& position, const int button)
 void MainWindow::mouseDragged(const ofVec2f& position, const int button)
 {
     _controller.mouseDragged(position, button);
+}
+
+void MainWindow::mouseReleased(const ofVec2f& position, const int button)
+{
+    _controller.mouseReleased(position, button);
 }
 
 void MainWindow::keyPressed(const int key)

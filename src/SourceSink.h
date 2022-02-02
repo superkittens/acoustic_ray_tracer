@@ -14,13 +14,7 @@ typedef enum
 class Positioning
 {
     protected:
-    typedef enum
-    {
-        UNLOCKED = 0,
-        LOCKED
-    }PositioningState;
 
-    PositioningState _currentState;
     ofVec2f _coordinates;
     bool    _isGrabbed = false;
     ofColor _color{255, 255, 255};
@@ -29,16 +23,17 @@ class Positioning
 
     public:
 
-    Positioning() : _currentState{UNLOCKED}, _coordinates{ofVec2f(0,0)} {}
-    Positioning(ofVec2f coordinates) : _currentState{UNLOCKED}, _coordinates{coordinates} {}
+    Positioning() : _coordinates{ofVec2f(0,0)} {}
+    Positioning(ofVec2f coordinates) : _coordinates{coordinates} {}
     ~Positioning() = default;
 
-    void grab(const ofVec2f& cursorPos);
-    void release();
-    void move(const ofVec2f& point);
-    void setColor(const ofColor& color) {_color = color;}
-    ofVec2f getCoordinates() const { return _coordinates; }
-    virtual void draw() const;
+    void            grab(const ofVec2f& cursorPos);
+    void            release();
+    void            move(const ofVec2f& point);
+    void            setColor(const ofColor& color) {_color = color;}
+    const ofColor   getColor() const { return _color; }
+    ofVec2f         getCoordinates() const { return _coordinates; }
+    const float     getRadius() const { return RADIUS; }
 };
 
 
@@ -46,28 +41,34 @@ class Listener : public Positioning
 {
     public:
 
-    Listener(ofVec2f coordinates) : Positioning{coordinates} {};
+    Listener(ofVec2f coordinates, size_t ident) : Positioning{coordinates}, _id{ident} { _color = ofColor(0, 127, 255); };
     ~Listener() = default;
+    
+    void            setId(const size_t ident) { _id = ident; }
+    const size_t    getId() const { return _id; }
 
-    void draw() const override;
     std::pair<bool, Direction> checkRayCollision(const ofVec2f& ray) const;
 
     protected:
     static const float DETECT_RADIUS;
+    size_t _id;
 };
 
 
-class Emitter : public Positioning
+class Source : public Positioning
 {
-    private:
+protected:
+    size_t _id;
 
     public:
 
-    Emitter(ofVec2f coordinates) : Positioning{coordinates}{};
-    ~Emitter() = default;
+    Source(ofVec2f coordinates, size_t ident) : Positioning{coordinates}, _id{ident} { _color = ofColor(255, 127, 0); }
+    ~Source() = default;
 
-    void draw() const override;
     ofVec2f getCoordinates() const { return _coordinates; }
+    
+    void            setId(const size_t ident) { _id = ident; }
+    const size_t    getId() const { return _id; }
 };
 
 #endif

@@ -13,6 +13,7 @@ class MainWindow
     void mouseMoved(const ofVec2f& position);
     void mouseClicked(const ofVec2f& position, const int button);
     void mouseDragged(const ofVec2f& position, const int button);
+    void mouseReleased(const ofVec2f& position, const int button);
     void keyPressed(const int key);
     void keyReleased(const int key);
 

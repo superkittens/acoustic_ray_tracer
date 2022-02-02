@@ -42,13 +42,15 @@ class Room
     void setOrigin(const ofVec2f& origin) { _roomOriginCoordinate = origin; }
     const ofVec2f getOrigin() const { return _roomOriginCoordinate; }
     
-    const std::vector<Wall>& getWalls() const { return _walls; }
-    void buildRoom(const std::vector<ofVec2f>& points);
-    void reset();
+    const std::vector<Wall>&    getWalls() const { return _walls; }
+    void                        buildRoom(const std::vector<ofVec2f>& points);
+    bool                        isBuilt() const { return _roomBuilt; }
+    void                        reset();
 
     private:
-    ofVec2f _roomOriginCoordinate;
-    std::vector<Wall> _walls;
+    ofVec2f             _roomOriginCoordinate;
+    std::vector<Wall>   _walls;
+    bool                _roomBuilt = false;
 };
 
 #endif

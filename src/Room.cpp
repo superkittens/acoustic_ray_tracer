@@ -61,11 +61,14 @@ void Room::buildRoom(const std::vector<ofVec2f>& points)
     }
     
     _walls.push_back(Wall{prevPoint, points.at(0)});
+    
+    _roomBuilt = true;
 }
 
 void Room::reset()
 {
     _walls.clear();
+    _roomBuilt = false;
     _roomOriginCoordinate = ofVec2f(0.0, 0.0);
 }
 

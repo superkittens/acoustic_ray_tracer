@@ -12,11 +12,15 @@ class RTController
         START = 0,
         ROOM_BUILD,
         NORMAL,
-        SIM_RUNNING
+        SIM_RUNNING,
+        SIM_PAUSED
     }RTState;
 
     public:
+    void setup(const float worldScale, const float simTime);
     void draw() const;
+    void update();
+    
     void mouseMoved(const ofVec2f& position);
     void mouseClicked(const ofVec2f& position, const int button);
     void mouseDragged(const ofVec2f& position, const int button);
@@ -29,6 +33,11 @@ class RTController
     void onClearRoomClicked();
     void onAddSourceClicked();
     void onAddListenerClicked();
+    
+    void onStartSimClicked();
+    void onPauseSimClicked();
+    void onStopSimClicked();
+    void onSimTimeSliderchanged(float& value);
 
     private:
     static const float SNAP_THRESHOLD;

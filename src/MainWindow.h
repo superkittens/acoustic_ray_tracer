@@ -10,6 +10,8 @@ class MainWindow
     public:
     void setup();
     void draw();
+    void update();
+    
     void mouseMoved(const ofVec2f& position);
     void mouseClicked(const ofVec2f& position, const int button);
     void mouseDragged(const ofVec2f& position, const int button);
@@ -20,6 +22,9 @@ class MainWindow
     private:
     
     static const float MAX_SCALE;
+    static const float MAX_SIM_TIME;
+    static const float MIN_SCALE;
+    static const float MIN_SIM_TIME;
     static const float SLIDER_WIDTH;
     static const float SLIDER_HEIGHT;
 

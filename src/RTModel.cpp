@@ -30,6 +30,25 @@ void RTModel::addListener()
         _listeners.push_back(Listener(_room.getOrigin(), _listeners.size()));
 }
 
+bool RTModel::startRayTrace()
+{
+    //  Ensure that there is a room and at least one source and listener
+    if (_sources.empty() || _listeners.empty() || !_room.isBuilt())
+        return false;
+    
+    return true;
+}
+
+void RTModel::pauseRayTrace()
+{
+    
+}
+
+void RTModel::stopRayTrace()
+{
+    
+}
+
 void RTModel::reset()
 {
     _room.reset();

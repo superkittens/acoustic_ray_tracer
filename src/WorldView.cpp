@@ -119,6 +119,7 @@ void WorldView::drawNormalState(const std::tuple<const Room&, const float, const
         ofSetColor(listener.getColor());
         ofDrawCircle(listener.getCoordinates(), listener.getRadius());
         
+        ofSetColor(255, 255, 255);
         std::string idString = to_string(listener.getId());
         ofDrawBitmapString(idString, listener.getCoordinates());
     }

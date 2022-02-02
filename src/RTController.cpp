@@ -193,6 +193,26 @@ void RTController::draw() const
     }
 }
 
+void RTController::setup(const float worldScale, const float simTime)
+{
+    _model.setWorldScale(worldScale);
+    _model.setSimulationTime(simTime);
+}
+
+void RTController::update()
+{
+    switch (_currentState)
+    {
+        //  Get the latest ray data from the solver when running the simulation
+        case SIM_RUNNING:
+            _model.update();
+            break;
+            
+        default:
+            break;
+    }
+}
+
 void RTController::onCreateRoomClicked()
 {
     if (_currentState == START)
@@ -220,6 +240,39 @@ void RTController::onAddListenerClicked()
 {
     if (_currentState == NORMAL)
         _model.addListener();
+}
+
+void RTController::onStartSimClicked()
+{
+    //  The simulator must be in NORMAL mode (ie. a room, source and listener must be present)
+    if (_currentState == NORMAL)
+    {
+        _model.startRayTrace();
+        _currentState = SIM_RUNNING;
+    }
+}
+
+void RTController::onPauseSimClicked()
+{
+    if (_currentState == SIM_RUNNING)
+    {
+        _model.pauseRayTrace();
+        _currentState = SIM_PAUSED;
+    }
+}
+
+void RTController::onStopSimClicked()
+{
+    if (_currentState == SIM_RUNNING || _currentState == SIM_PAUSED)
+    {
+        _model.stopRayTrace();
+        _currentState = NORMAL;
+    }
+}
+
+void RTController::onSimTimeSliderchanged(float& value)
+{
+    _model.setSimulationTime(value);
 }
 
 ofVec2f RTController::snapCursor(const ofVec2f& cursorPos)

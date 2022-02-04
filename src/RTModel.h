@@ -23,8 +23,8 @@ class RTModel
     float                           getWorldScale() const { return _worldScale; }
     
     void                            addSoundSource();
-    std::vector<Source>&            getSoundSources() { return _sources; }
-    const std::vector<Source>&      getSoundSources() const { return _sources; }
+    Source&                         getSoundSource() { return _source; }
+    const Source&                   getSoundSource() const { return _source; }
     
     void                            addListener();
     const std::vector<Listener>&    getListeners() const { return _listeners; }
@@ -32,6 +32,10 @@ class RTModel
     
     void                            setSimulationTime(const float time) { _simulationTime = time; }
     const float                     getSimulationTime() const { return _simulationTime; }
+    void                            setNumRays(const size_t numRays) { _numRays = numRays; }
+    const size_t                    getNumRays() const { return _numRays; }
+    void                            setTimeStep(const float timeStep) { _timeStep = timeStep; }
+    const float                     getTimeStep() const { return _timeStep; }
     
     bool                            startRayTrace();
     void                            pauseRayTrace();
@@ -41,16 +45,19 @@ class RTModel
     
     void                            reset();
 
+    
     private:
     std::vector<ofVec2f>    _points;
-    std::vector<Source>     _sources;
+    Source                  _source;
     std::vector<Listener>   _listeners;
     float                   _worldScale;
     float                   _simulationTime;
+    float                   _timeStep;
+    size_t                  _numRays;
     
     
     Room                    _room;
-//    Solver                  _solver;
+    Solver                  _solver;
 };
 
 #endif

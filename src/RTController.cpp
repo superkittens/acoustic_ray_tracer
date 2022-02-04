@@ -71,8 +71,7 @@ void RTController::mouseClicked(const ofVec2f& position, const int button)
         case NORMAL:
         {
             //  Grab sources or listeners (if applicable)
-            for (auto& source: _model.getSoundSources())
-                source.grab(position);
+            _model.getSoundSource().grab(position);
             
             for (auto& listener: _model.getListeners())
                 listener.grab(position);
@@ -94,8 +93,7 @@ void RTController::mouseDragged(const ofVec2f& position, const int button)
             
         case NORMAL:
         {
-            for (auto& source : _model.getSoundSources())
-                source.move(position);
+            _model.getSoundSource().move(position);
             
             for (auto& listener : _model.getListeners())
                 listener.move(position);
@@ -116,8 +114,7 @@ void RTController::mouseReleased(const ofVec2f& position, const int button)
             
         case NORMAL:
         {
-            for (auto& source : _model.getSoundSources())
-                source.release();
+            _model.getSoundSource().release();
             
             for (auto& listener : _model.getListeners())
                 listener.release();
@@ -183,7 +180,7 @@ void RTController::draw() const
         case NORMAL:
         {
             //  Package data for drawing the room
-            auto data = std::make_tuple(_model.getRoom(), _model.getWorldScale(), _model.getSoundSources(), _model.getListeners());
+            auto data = std::make_tuple(_model.getRoom(), _model.getWorldScale(), _model.getSoundSource(), _model.getListeners());
             _worldView.drawNormalState(data);
             break;
         }
@@ -193,10 +190,12 @@ void RTController::draw() const
     }
 }
 
-void RTController::setup(const float worldScale, const float simTime)
+void RTController::setup(const float worldScale, const float simTime, const float timeStep, const size_t numRays)
 {
     _model.setWorldScale(worldScale);
     _model.setSimulationTime(simTime);
+    _model.setTimeStep(timeStep);
+    _model.setNumRays(numRays);
 }
 
 void RTController::update()
@@ -270,9 +269,19 @@ void RTController::onStopSimClicked()
     }
 }
 
-void RTController::onSimTimeSliderchanged(float& value)
+void RTController::onSimTimeSliderChanged(float& value)
 {
     _model.setSimulationTime(value);
+}
+
+void RTController::onNumRaysChanged(size_t& value)
+{
+    _model.setNumRays(value);
+}
+
+void RTController::onTimeStepChanged(float& value)
+{
+    _model.setTimeStep(value);
 }
 
 ofVec2f RTController::snapCursor(const ofVec2f& cursorPos)

@@ -1,48 +1,60 @@
-// #ifndef SOLVER_H_
-// #define SOLVER_H_
-//
-// #include "ofMain.h"
-// #include "World.h"
-// #include "SourceSink.h"
-// #include "Ray.h"
-// #include <fstream>
-//
-// class Solver
-// {
-//     private:
-//     bool _simulationActive = true;
-//     static const float NUM_RAYS;
-//     std::vector<Ray> _rays;
-//
-//     float _currentTime;
-//     const float _timeStep = 0.f;
-//     const float _maxSimulationTime;
-//
-//     std::vector<float> _leftIR;
-//     std::vector<float> _rightIR;
-//
-//     const World* _world;
-//     std::shared_ptr<Listener> _listener;
-//     std::shared_ptr<Emitter> _emitter;
-//
-//     std::ofstream _outputFileLeft;
-//     std::ofstream _outputFileRight;
-//
-//     void detectCollisionAndReflect(Ray& ray);
-//     void detectListenerCollision(Ray& ray);
-//     void reflectRay(const ofVec2f& wallUnitVec, Ray& ray);
-//
-//     public:
-//     Solver(const World* world, std::shared_ptr<Listener> listener, std::shared_ptr<Emitter> emitter, float timeStep, float maxSimulationTime);
-//     ~Solver() = default;
-//
-//     void    update();
-//     void    draw() const;
-//     float   getSimulationTime() const { return _currentTime; }
-//     bool    getSimulationStatus() const { return _simulationActive; }
-//     void    pauseSimulation() { _simulationActive = false; }
-//     void    restartSimulation() { _simulationActive = true; }
-//     const std::vector<float>& getImpulseResponse(const Direction& dir);
-// };
-//
-// #endif
+#ifndef SOLVER_H_
+#define SOLVER_H_
+
+#include "ofMain.h"
+#include "SourceSink.h"
+#include "Room.h"
+#include "Ray.h"
+
+#include <thread>
+
+struct SolverInput
+{
+    float simulationTime;
+    float timeStep;
+    size_t numRays;
+    float worldScale;
+    
+    const Source* source;
+    const std::vector<Listener>* listeners;
+    const Room* room;
+};
+
+
+class Solver
+{
+private:
+    static const float C;
+    bool _simulationActive = true;
+    bool _pauseSimulation = false;
+
+    std::vector<Ray> _rays;
+    
+    float       _currentTime;
+    SolverInput _simParameters;
+    
+    bool        _snapshotRequested = false;
+    bool        _snapshotReady = false;
+    
+    void detectCollisionAndReflect(Ray& ray);
+    void detectListenerCollision(Ray& ray);
+    void reflectRay(const ofVec2f& wallUnitVec, Ray& ray);
+    
+    void simulationLoop();
+    
+public:
+    
+    void    update();
+    float   getSimulationTime() const { return _currentTime; }
+    bool    getSimulationStatus() const { return _simulationActive; }
+    bool    startSimulation(SolverInput parameters);
+    void    pauseSimulation() { _simulationActive = false; }
+    void    restartSimulation() { _simulationActive = true; }
+    
+    void    requestSimulationSnapshot() { _snapshotRequested = true; }
+    //  getRayData();
+    std::vector<float>& getImpulseResponse(const size_t listenerID);
+//    const std::vector<float>& getImpulseResponse(const Direction& dir);
+};
+
+#endif

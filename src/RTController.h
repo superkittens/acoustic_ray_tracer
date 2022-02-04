@@ -17,7 +17,7 @@ class RTController
     }RTState;
 
     public:
-    void setup(const float worldScale, const float simTime);
+    void setup(const float worldScale, const float simTime, const float timeStep, const size_t numRays);
     void draw() const;
     void update();
     
@@ -37,7 +37,9 @@ class RTController
     void onStartSimClicked();
     void onPauseSimClicked();
     void onStopSimClicked();
-    void onSimTimeSliderchanged(float& value);
+    void onSimTimeSliderChanged(float& value);
+    void onNumRaysChanged(size_t& value);
+    void onTimeStepChanged(float& value);
 
     private:
     static const float SNAP_THRESHOLD;

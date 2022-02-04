@@ -20,21 +20,38 @@ void RTModel::buildRoom(const ofVec2f roomOrigin)
 
 void RTModel::addSoundSource()
 {
-    if (_sources.size() < MAX_NUM_SOURCES)
-        _sources.push_back(Source(_room.getOrigin(), _sources.size()));
+    if (!_source.getVisibility())
+    {
+        _source.setCoordinates(_room.getOrigin());
+        _source.setVisible(true);
+    }
 }
 
 void RTModel::addListener()
 {
     if (_listeners.size() < MAX_NUM_SOURCES)
+    {
         _listeners.push_back(Listener(_room.getOrigin(), _listeners.size()));
+        _listeners.back().setVisible(true);
+    }
 }
 
 bool RTModel::startRayTrace()
 {
     //  Ensure that there is a room and at least one source and listener
-    if (_sources.empty() || _listeners.empty() || !_room.isBuilt())
+    if (_listeners.empty() || !_room.isBuilt())
         return false;
+    
+    SolverInput inputs;
+    inputs.listeners = &_listeners;
+    inputs.source = &_source;
+    inputs.simulationTime = _simulationTime;
+    inputs.timeStep = _timeStep;
+    inputs.room = &_room;
+    inputs.numRays = _numRays;
+    inputs.worldScale = _worldScale;
+    
+    _solver.startSimulation(inputs);
     
     return true;
 }
@@ -52,6 +69,5 @@ void RTModel::stopRayTrace()
 void RTModel::reset()
 {
     _room.reset();
-    _sources.clear();
     _listeners.clear();
 }

@@ -13,7 +13,7 @@ class WorldView
 
     void    drawEmptyWindow() const;
     void    drawRoomSoFar(const std::tuple<const std::vector<ofVec2f>&, const float>& roomDrawData) const;
-    void    drawNormalState(const std::tuple<const Room&, const float, const std::vector<Source>&, const std::vector<Listener>&>& data) const;
+    void    drawNormalState(const std::tuple<const Room&, const float, const Source&, const std::vector<Listener>&>& data) const;
     void    drawSimulateState();
     
     bool    withinBounds(const ofVec2f& position) const;

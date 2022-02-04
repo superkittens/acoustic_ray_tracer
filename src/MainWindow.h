@@ -21,13 +21,15 @@ class MainWindow
 
     private:
     
-    static const float MAX_SCALE;
-    static const float MAX_SIM_TIME;
-    static const float MIN_SCALE;
-    static const float MIN_SIM_TIME;
-    static const float SLIDER_WIDTH;
-    static const float SLIDER_HEIGHT;
-
+    static const float  START_TIME_STEP;
+    static const float  MAX_SCALE;
+    static const float  MAX_SIM_TIME;
+    static const int    MAX_NUM_RAYS;
+    static const float  MIN_SCALE;
+    static const float  MIN_SIM_TIME;
+    static const int    MIN_NUM_RAYS;
+    static const float  SLIDER_WIDTH;
+    static const float  SLIDER_HEIGHT;
     
     RTController    _controller;
     
@@ -43,6 +45,10 @@ class MainWindow
     ofxButton       _stopSimButton;
     ofxButton       _pauseSimButton;
     ofxFloatSlider  _simTimeSlider;
+    ofxLabel        _numRaysLabel;
+    ofxInputField<size_t> _numRaysField;
+    ofxLabel        _timeStepLabel;
+    ofxInputField<float> _timeStepField;
 };
 
 #endif

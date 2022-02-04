@@ -27,7 +27,7 @@ public:
     ofVec2f getEnd() const { return _end; }
     
     float   getLength() const { return _vector.length(); }      //  getLength() will return the length in pixel space!
-    ofVec2f getUnitVector() const { return _vector.normalized(); }
+    ofVec2f getUnitVector() const { return _vector.getNormalized(); }
     ofVec2f getVector() const { return _vector; }
     ofVec2f getNormalUnitVector() const { return _normalVec; }
 
@@ -39,8 +39,8 @@ class Room
 {
     public:
 
-    void setOrigin(const ofVec2f& origin) { _roomOriginCoordinate = origin; }
-    const ofVec2f getOrigin() const { return _roomOriginCoordinate; }
+    void                        setOrigin(const ofVec2f& origin) { _roomOriginCoordinate = origin; }
+    const ofVec2f               getOrigin() const { return _roomOriginCoordinate; }
     
     const std::vector<Wall>&    getWalls() const { return _walls; }
     void                        buildRoom(const std::vector<ofVec2f>& points);

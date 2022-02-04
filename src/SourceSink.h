@@ -17,6 +17,7 @@ class Positioning
 
     ofVec2f _coordinates;
     bool    _isGrabbed = false;
+    bool    _isVisible = false;
     ofColor _color{255, 255, 255};
 
     static const float RADIUS;
@@ -33,7 +34,10 @@ class Positioning
     void            setColor(const ofColor& color) {_color = color;}
     const ofColor   getColor() const { return _color; }
     ofVec2f         getCoordinates() const { return _coordinates; }
+    void            setCoordinates(const ofVec2f& coordinates) { _coordinates = coordinates; }
     const float     getRadius() const { return RADIUS; }
+    void            setVisible(bool isVisible) { _isVisible = isVisible; }
+    bool            getVisibility() const { return _isVisible; }
 };
 
 
@@ -61,7 +65,7 @@ protected:
     size_t _id;
 
     public:
-
+    Source() { Source(ofVec2f(0, 0), 0); _color = ofColor(255, 127, 50); }
     Source(ofVec2f coordinates, size_t ident) : Positioning{coordinates}, _id{ident} { _color = ofColor(255, 127, 0); }
     ~Source() = default;
 

@@ -9,29 +9,25 @@ void RTModel::addRoomVertex(const ofVec2f& point)
     _points.push_back(point);
 }
 
-void RTModel::buildRoom(const ofVec2f roomOrigin)
+void RTModel::buildRoom()
 {
-    _room.setOrigin(roomOrigin);
-    std::transform(_points.begin(), _points.end(), _points.begin(),
-                    [&](ofVec2f a) { return a - roomOrigin; });
-    
     _room.buildRoom(_points);
 }
 
-void RTModel::addSoundSource()
+void RTModel::addSoundSource(const ofVec2f startingPos)
 {
     if (!_source.getVisibility())
     {
-        _source.setCoordinates(_room.getOrigin());
+        _source.setCoordinates(startingPos);
         _source.setVisible(true);
     }
 }
 
-void RTModel::addListener()
+void RTModel::addListener(const ofVec2f startingPos)
 {
     if (_listeners.size() < MAX_NUM_SOURCES)
     {
-        _listeners.push_back(Listener(_room.getOrigin(), _listeners.size()));
+        _listeners.push_back(Listener(startingPos, _listeners.size()));
         _listeners.back().setVisible(true);
     }
 }
@@ -66,8 +62,32 @@ void RTModel::stopRayTrace()
     
 }
 
+void RTModel::requestSnapshot()
+{
+    if (!_snapshotRequested)
+    {
+        _snapshotRequested = true;
+        _solver.requestSimulationSnapshot();
+    }
+}
+
+void RTModel::updateSnapshot()
+{
+    if (_snapshotRequested)
+    {
+        if (_solver.getRays(_raySnapshots))
+            _snapshotRequested = false;
+    }
+}
+
+const std::vector<Ray>& RTModel::getRays() const
+{
+    return _raySnapshots;
+}
+
 void RTModel::reset()
 {
     _room.reset();
     _listeners.clear();
+    _source.setVisible(false);
 }

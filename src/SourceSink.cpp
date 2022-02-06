@@ -27,7 +27,10 @@ void Positioning::move(const ofVec2f& point)
 }
 
 
-
+//  Check to see if a given ray reaches a listener
+//  Returns std::pair
+//  First entry tells us whether or not a collision is detected
+//  Second entry tells us which direction
 std::pair<bool, Direction> Listener::checkRayCollision(const ofVec2f& ray) const
 {
     const ofVec2f delta = ray - _coordinates;

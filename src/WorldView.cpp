@@ -45,8 +45,8 @@ void WorldView::drawRoomSoFar(const std::tuple<const std::vector<ofVec2f>&, cons
             coordinateString = "( " + to_string(pointWorldView.x) + " , " + to_string(pointWorldView.y) + " )";
             ofDrawBitmapString(coordinateString, currentPoint.x, currentPoint.y - 10);
             
-            ofDrawLine(prevPoint, points.at(i));
-            prevPoint = points.at(i);
+            ofDrawLine(prevPoint, currentPoint);
+            prevPoint = currentPoint;
         }
 
         //  Draw a line between the last point and the cursor position
@@ -79,13 +79,12 @@ void WorldView::drawNormalState(const std::tuple<const Room&, const float, const
     ofSetLineWidth(5.0);
     
     const auto& walls = room.getWalls();
-    const auto roomOrigin = room.getOrigin();
     
     for (auto& wall : walls)
     {
         //  Wall coordinates are in room space, not pixel space so we need to make the conversion here
-        const auto startPoint = wall.getStart() + roomOrigin;
-        const auto endPoint = wall.getEnd() + roomOrigin;
+        const auto startPoint = wall.getStart();
+        const auto endPoint = wall.getEnd();
         
         //  Draw wall
         ofSetColor(255, 255, 255);
@@ -120,6 +119,47 @@ void WorldView::drawNormalState(const std::tuple<const Room&, const float, const
         std::string idString = to_string(listener.getId());
         ofDrawBitmapString(idString, listener.getCoordinates());
     }
+}
+
+void WorldView::drawSimulateState(const SimulationData& data) const
+{
+    //  Unpack the tuple
+    const Room& room = std::get<0>(data);
+    const float worldScale = std::get<1>(data);
+    const Source source = std::get<2>(data);
+    const std::vector<Listener>& listeners = std::get<3>(data);
+    const std::vector<Ray>& rays = std::get<4>(data);
+    
+    drawNormalState(std::make_tuple(room, worldScale, source, listeners));
+    
+    //  Draw the rays
+    ofSetLineWidth(0.5);
+    for (const auto& ray : rays)
+    {
+        ofVec2f prevPoint = ray.getRayPaths().at(0);
+        for (auto i = 1; i < ray.getRayPaths().size(); ++i)
+        {
+            ofDrawLine(prevPoint, ray.getRayPaths().at(i));
+            prevPoint = ray.getRayPaths().at(i);
+        }
+        
+        ofDrawLine(prevPoint, ray.getPosition());
+    }
+}
+
+void WorldView::drawSimulateStateDebug(const SimulationDataDebug& data) const
+{
+    //  Unpack the tuple
+    const Room& room = std::get<0>(data);
+    const float worldScale = std::get<1>(data);
+    const Source source = std::get<2>(data);
+    const std::vector<Listener>& listeners = std::get<3>(data);
+    const ofVec2f rayPos = std::get<4>(data);
+    
+    drawNormalState(std::make_tuple(room, worldScale, source, listeners));
+    
+    ofSetColor(255, 255, 255);
+    ofDrawCircle(rayPos, 25);
 }
 
 

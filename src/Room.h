@@ -38,9 +38,6 @@ public:
 class Room
 {
     public:
-
-    void                        setOrigin(const ofVec2f& origin) { _roomOriginCoordinate = origin; }
-    const ofVec2f               getOrigin() const { return _roomOriginCoordinate; }
     
     const std::vector<Wall>&    getWalls() const { return _walls; }
     void                        buildRoom(const std::vector<ofVec2f>& points);
@@ -48,7 +45,6 @@ class Room
     void                        reset();
 
     private:
-    ofVec2f             _roomOriginCoordinate;
     std::vector<Wall>   _walls;
     bool                _roomBuilt = false;
 };

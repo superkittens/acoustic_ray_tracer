@@ -4,6 +4,7 @@
 #include "WorldView.h"
 #include "RTModel.h"
 #include "ofMain.h"
+#include "RTCommon.h"
 
 class RTController
 {

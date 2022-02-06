@@ -18,23 +18,29 @@ class Ray
     float   _level = 1.f;
 
     std::vector<ofVec2f> _path;
+    std::vector<size_t> _collidedListeners;
 
     bool    _trajectoryChanged = false;
     bool    _active = true;
 
     public:
     Ray(const ofVec2f& v, const ofVec2f& s, const float& distanceTravelledPerIteration) : _v{v}, _s{s}, _distanceTravelledPerIteration{distanceTravelledPerIteration} { _path.push_back(_s); }
+    Ray(const Ray& ray);
+    
 
     void    update();
     void    draw() const;
     ofVec2f getVelocity() const { return _v; }
     void    setVelocity(const ofVec2f& v) { _v = v; }
-    ofVec2f getPosition() const { return _s; }
+    const ofVec2f& getPosition() const { return _s; }
     void    setPosition(const ofVec2f& s) { _s = s; }
     void    signalTrajectoryChange() { _trajectoryChanged = true; }
     void    setInactive() { _active = false; }
     float   getLevel() const { return _level; }
     bool    getActiveStatus() const { return _active; }
+    void    addCollidedListenerToRay(const size_t listenerID) { _collidedListeners.push_back(listenerID); }
+    const std::vector<size_t>& getListOfCollidedListeners() const { return _collidedListeners; }
+    const std::vector<ofVec2f> getRayPaths() const { return _path; }
 };
 
 #endif

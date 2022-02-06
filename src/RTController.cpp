@@ -55,7 +55,7 @@ void RTController::mouseClicked(const ofVec2f& position, const int button)
                     {
                         _currentState = NORMAL;
                         
-                        _model.buildRoom(_worldView.getWindowOrigin());
+                        _model.buildRoom();
                         _model.clearRoomVertices();
                         
                         break;
@@ -185,6 +185,16 @@ void RTController::draw() const
             break;
         }
             
+        case SIM_RUNNING:
+        case SIM_PAUSED:
+        {
+
+            auto data = std::make_tuple(_model.getRoom(), _model.getWorldScale(), _model.getSoundSource(), _model.getListeners(), _model.getRays());
+            _worldView.drawSimulateState(data);
+
+            break;
+        }
+            
         default:
             break;
     }
@@ -204,8 +214,12 @@ void RTController::update()
     {
         //  Get the latest ray data from the solver when running the simulation
         case SIM_RUNNING:
-            _model.update();
+        {
+            _model.requestSnapshot();
+            _model.updateSnapshot();
+            
             break;
+        }
             
         default:
             break;
@@ -232,13 +246,13 @@ void RTController::onClearRoomClicked()
 void RTController::onAddSourceClicked()
 {
     if (_currentState == NORMAL)
-        _model.addSoundSource();
+        _model.addSoundSource(_worldView.getWindowOrigin());
 }
 
 void RTController::onAddListenerClicked()
 {
     if (_currentState == NORMAL)
-        _model.addListener();
+        _model.addListener(_worldView.getWindowOrigin());
 }
 
 void RTController::onStartSimClicked()

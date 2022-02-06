@@ -5,8 +5,11 @@
 #include "SourceSink.h"
 #include "Room.h"
 #include "Ray.h"
+#include "RTCommon.h"
 
 #include <thread>
+#include <mutex>
+#include <memory>
 
 struct SolverInput
 {
@@ -16,7 +19,7 @@ struct SolverInput
     float worldScale;
     
     const Source* source;
-    const std::vector<Listener>* listeners;
+    std::vector<Listener>* listeners;
     const Room* room;
 };
 
@@ -26,18 +29,22 @@ class Solver
 private:
     static const float C;
     bool _simulationActive = true;
-    bool _pauseSimulation = false;
+    bool _simulationPaused = false;
 
     std::vector<Ray> _rays;
+    std::vector<Ray> _raySnapshot;
     
     float       _currentTime;
     SolverInput _simParameters;
     
     bool        _snapshotRequested = false;
-    bool        _snapshotReady = false;
+    bool        _snapshotIsReady = false;
     
-    void detectCollisionAndReflect(Ray& ray);
-    void detectListenerCollision(Ray& ray);
+    std::mutex  _requestSnapshotMutex;
+    std::mutex  _snapshotDoneMutex;
+    
+    void detectCollisionWithWallAndReflect(Ray& ray);
+    void detectListenerCollision();
     void reflectRay(const ofVec2f& wallUnitVec, Ray& ray);
     
     void simulationLoop();
@@ -51,8 +58,11 @@ public:
     void    pauseSimulation() { _simulationActive = false; }
     void    restartSimulation() { _simulationActive = true; }
     
-    void    requestSimulationSnapshot() { _snapshotRequested = true; }
-    //  getRayData();
+    void    requestSimulationSnapshot();
+    
+    bool    getRays(std::vector<Ray>& destinationVec);
+    
+    const ofVec2f&   getRay() const { return _rays.at(0).getPosition(); }
     std::vector<float>& getImpulseResponse(const size_t listenerID);
 //    const std::vector<float>& getImpulseResponse(const Direction& dir);
 };

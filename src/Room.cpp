@@ -69,6 +69,5 @@ void Room::reset()
 {
     _walls.clear();
     _roomBuilt = false;
-    _roomOriginCoordinate = ofVec2f(0.0, 0.0);
 }
 

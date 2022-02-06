@@ -33,7 +33,7 @@ class Positioning
     void            move(const ofVec2f& point);
     void            setColor(const ofColor& color) {_color = color;}
     const ofColor   getColor() const { return _color; }
-    ofVec2f         getCoordinates() const { return _coordinates; }
+    const ofVec2f&  getCoordinates() const { return _coordinates; }
     void            setCoordinates(const ofVec2f& coordinates) { _coordinates = coordinates; }
     const float     getRadius() const { return RADIUS; }
     void            setVisible(bool isVisible) { _isVisible = isVisible; }
@@ -50,12 +50,16 @@ class Listener : public Positioning
     
     void            setId(const size_t ident) { _id = ident; }
     const size_t    getId() const { return _id; }
+    void            addSampleToIR(const Direction direction, const float sample) { if (direction == LEFT) { _leftIR.push_back(sample); } else { _rightIR.push_back(sample); } }
+    const std::vector<float>& getIR(const Direction direction) { if (direction == LEFT) { return _leftIR; } else { return _rightIR; } }
 
     std::pair<bool, Direction> checkRayCollision(const ofVec2f& ray) const;
 
     protected:
     static const float DETECT_RADIUS;
     size_t _id;
+    std::vector<float> _leftIR;
+    std::vector<float> _rightIR;
 };
 
 

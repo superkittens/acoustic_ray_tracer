@@ -2,6 +2,21 @@
 
 const float Ray::MIN_THRESHOLD = 0.000001f;
 
+Ray::Ray(const Ray& ray)
+{
+    _v = ray._v;
+    _s = ray._s;
+    _iteration = ray._iteration;
+    _distanceTravelledPerIteration = ray._distanceTravelledPerIteration;
+    _distanceTravelled = ray._distanceTravelled;
+    _level = ray._level;
+    
+    _path = ray._path;
+    _collidedListeners = ray._collidedListeners;
+    _trajectoryChanged = ray._trajectoryChanged;
+    _active = ray._active;
+}
+
 void Ray::update()
 {
     if (_active)

@@ -2,71 +2,54 @@
 
 const float Solver::C = 343.0;
 
-// void Solver::update()
-// {
-//     if (_simulationActive)
+ void Solver::update()
+ {
+//     if (_simulationActive && !_simulationPaused)
 //     {
-//         float summedRaysLeft = 0.f;
-//         float summedRaysRight = 0.f;
-//         float numLeftCollisions = 0;
-//         float numRightCollisions = 0;
-//
-//         for (auto &ray : _rays)
+//         for (auto& ray : _rays)
 //         {
-//             detectCollisionAndReflect(ray);
-//
-//             //  Check to see if any rays have reached the listener
-//             if (ray.getActiveStatus())
-//             {
-//                 auto collided = _listener->checkRayCollision(ray.getPosition());
-//                 if (collided.first)
-//                 {
-//                     ray.setInactive();
-//
-//                     if (collided.second == LEFT)
-//                     {
-//                         summedRaysLeft += ray.getLevel();
-//                         numLeftCollisions += 1;
-//                     }
-//                     if (collided.second == RIGHT)
-//                     {
-//                         summedRaysRight += ray.getLevel();
-//                         numRightCollisions += 1;
-//                     }
-//                 }
-//             }
+//             detectCollisionWithWallAndReflect(ray);
 //             ray.update();
 //         }
-//
-//         float leftAverage = 0.f;
-//         float rightAverage = 0.f;
-//
-//         if (numLeftCollisions > 0)
-//             leftAverage = summedRaysLeft / numLeftCollisions;
-//         if (numRightCollisions > 0)
-//             rightAverage = summedRaysRight / numRightCollisions;
-//
-//         _leftIR.push_back(leftAverage);
-//         _rightIR.push_back(rightAverage);
-//
-//         _outputFileLeft << to_string(leftAverage) << '\n';
-//         _outputFileRight << to_string(rightAverage) << '\n';
-//
-//         _currentTime += _timeStep;
-//         if (_currentTime >= _maxSimulationTime)
-//         {
-//             _simulationActive = false;
-//             _outputFileLeft.close();
-//             _outputFileRight.close();
-//         }
 //     }
-// }
+ }
 
 void Solver::simulationLoop()
 {
-    while(_simulationActive)
+    while (_simulationActive)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        if (!_simulationPaused)
+        {
+            //  If the snapshot of the simulation is requested, peel off a copy of the states of the rays
+            std::lock_guard<std::mutex> guard(_requestSnapshotMutex);
+            if (_snapshotRequested)
+            {
+                for (const auto& ray : _rays)
+                    _raySnapshot.push_back(ray);
+                
+                _snapshotRequested = false;
+                
+                std::lock_guard<std::mutex> readyGuard(_snapshotDoneMutex);
+                _snapshotIsReady = true;
+            }
+            else
+            {
+                for (auto& ray : _rays)
+                {
+                    detectCollisionWithWallAndReflect(ray);
+                    ray.update();
+                }
+                
+                _currentTime += _simParameters.timeStep;
+                if (_currentTime >= _simParameters.simulationTime)
+                {
+                    std::cout << "Simulation finished\n";
+                    _simulationActive = false;
+                }
+                
+//                std::cout << "Simulation Time: " << _currentTime << " s\n";
+            }
+        }
     }
 }
 
@@ -85,15 +68,38 @@ bool Solver::startSimulation(SolverInput parameters)
     
     for (auto i = 0; i < _simParameters.numRays; ++i)
     {
-        const ofVec2f velocity = (distanceTravelledPerIteration * _simParameters.worldScale) * ofVec2f(cosf(angle), sinf(angle));
+        const ofVec2f velocity = (distanceTravelledPerIteration / _simParameters.worldScale) * ofVec2f(cosf(angle), sinf(angle));
         _rays.push_back(Ray(velocity, _simParameters.source->getCoordinates(), distanceTravelledPerIteration));
         angle += angleDelta;
     }
+    
+    _simulationActive = true;
+    _simulationPaused = false;
     
     std::thread sim_thread([&]{ simulationLoop(); });
     sim_thread.detach();
     
     return true;
+}
+
+void Solver::requestSimulationSnapshot()
+{
+    std::lock_guard<std::mutex> guard(_requestSnapshotMutex);
+    _snapshotRequested = true;
+}
+
+bool Solver::getRays(std::vector<Ray>& destinationVec)
+{
+    std::lock_guard<std::mutex> guard(_snapshotDoneMutex);
+    if (_snapshotIsReady)
+    {
+        destinationVec = std::move(_raySnapshot);
+//        std::copy(begin(_raySnapshot), end(_raySnapshot), std::back_inserter(destinationVec));
+        _snapshotIsReady = false;
+        
+        return true;
+    }
+    return false;
 }
 
  //  Ray reflection uses the Householder reflection matrix to determine the new velocity vector for a ray
@@ -115,7 +121,7 @@ bool Solver::startSimulation(SolverInput parameters)
      ray.setVelocity(ofVec2f(vx, vy));
  }
 
- void Solver::detectCollisionAndReflect(Ray& ray)
+ void Solver::detectCollisionWithWallAndReflect(Ray& ray)
  {
      //  Check to see if a ray has collided with a wall
      const auto walls = _simParameters.room->getWalls();
@@ -130,3 +136,49 @@ bool Solver::startSimulation(SolverInput parameters)
          }
      }
  }
+
+void Solver::detectListenerCollision()
+{
+    for (auto& listener : *_simParameters.listeners)
+    {
+        float summedRaysLeft = 0.f;
+        float summedRaysRight = 0.f;
+        //                    float numLeftCollisions = 0;
+        //                    float numRightCollisions = 0;
+        
+        for (auto& ray : _rays)
+        {
+            //  Check to see if the ray has reached the listener
+            if (ray.getActiveStatus())
+            {
+                auto collidedPair = listener.checkRayCollision(ray.getPosition());
+                
+                bool didCollide = std::get<0>(collidedPair);
+                Direction collisionDirection = std::get<1>(collidedPair);
+                
+                if (didCollide)
+                {
+                    auto collidedListeners = ray.getListOfCollidedListeners();
+                    auto index = std::find(collidedListeners.begin(), collidedListeners.end(), listener.getId());
+                    if (index == collidedListeners.end())
+                    {
+                        ray.addCollidedListenerToRay(listener.getId());
+                        
+                        if (collisionDirection == LEFT)
+                            summedRaysLeft += ray.getLevel();
+                        else
+                            summedRaysRight += ray.getLevel();
+                    }
+                }
+                
+                //  Deactive ray when it reaches all listeners
+                if (ray.getListOfCollidedListeners().size() == _simParameters.listeners->size())
+                    ray.setInactive();
+            }
+        }
+        
+        //  Store summedRays into IR
+        listener.addSampleToIR(LEFT, summedRaysLeft);
+        listener.addSampleToIR(RIGHT, summedRaysRight);
+    }
+}

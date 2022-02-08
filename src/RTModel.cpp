@@ -16,30 +16,24 @@ void RTModel::buildRoom()
 
 void RTModel::addSoundSource(const ofVec2f startingPos)
 {
-    if (!_source.getVisibility())
-    {
-        _source.setCoordinates(startingPos);
-        _source.setVisible(true);
-    }
+    _source.setCoordinates(startingPos);
+    _source.setVisible(true);
 }
 
 void RTModel::addListener(const ofVec2f startingPos)
 {
-    if (_listeners.size() < MAX_NUM_SOURCES)
-    {
-        _listeners.push_back(Listener(startingPos, _listeners.size()));
-        _listeners.back().setVisible(true);
-    }
+    _listener.setCoordinates(startingPos);
+    _listener.setVisible(true);
 }
 
 bool RTModel::startRayTrace()
 {
     //  Ensure that there is a room and at least one source and listener
-    if (_listeners.empty() || !_room.isBuilt())
+    if (!_room.isBuilt())
         return false;
     
     SolverInput inputs;
-    inputs.listeners = &_listeners;
+    inputs.listener = &_listener;
     inputs.source = &_source;
     inputs.simulationTime = _simulationTime;
     inputs.timeStep = _timeStep;
@@ -91,6 +85,7 @@ const std::vector<Ray>& RTModel::getRays() const
 void RTModel::reset()
 {
     _room.reset();
-    _listeners.clear();
     _source.setVisible(false);
+    _listener.setVisible(false);
+    _raySnapshots.clear();
 }

@@ -23,8 +23,6 @@ class RTController
     void onCreateRoomClicked();
     void onWorldScaleSliderChanged(float& value);
     void onClearRoomClicked();
-    void onAddSourceClicked();
-    void onAddListenerClicked();
     
     void onStartSimClicked();
     void onPauseSimClicked();
@@ -45,6 +43,7 @@ class RTController
     
     ofVec2f snapCursor(const ofVec2f& cursorPos);
     ofVec2f snapCursorToFirstPoint(const ofVec2f& cursorPos);
+    void    buildRoom();
 };
 
 #endif

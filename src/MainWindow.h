@@ -35,8 +35,6 @@ class MainWindow
     
     ofxPanel        _roomBuildPanel;
     ofxButton       _createRoomButton;
-    ofxButton       _addSourceButton;
-    ofxButton       _addListenerButton;
     ofxButton       _clearRoomButton;
     ofxFloatSlider  _worldScaleSlider;
 

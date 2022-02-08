@@ -19,7 +19,7 @@ struct SolverInput
     float worldScale;
     
     const Source* source;
-    std::vector<Listener>* listeners;
+    const Listener* listener;
     const Room* room;
 };
 
@@ -64,7 +64,7 @@ public:
     
     bool    getRays(std::vector<Ray>& destinationVec);
     
-    const ofVec2f&   getRay() const { return _rays.at(0).getPosition(); }
+    const ofVec2f&   getRay() const { return _rays.at(0).getPosition(); }   // Debug only
     std::vector<float>& getImpulseResponse(const size_t listenerID);
 //    const std::vector<float>& getImpulseResponse(const Direction& dir);
 };

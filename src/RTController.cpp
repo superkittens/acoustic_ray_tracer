@@ -53,11 +53,7 @@ void RTController::mouseClicked(const ofVec2f& position, const int button)
                 {
                     if (point == points.at(0))
                     {
-                        _currentState = NORMAL;
-                        
-                        _model.buildRoom();
-                        _model.clearRoomVertices();
-                        
+                        buildRoom();
                         break;
                     }
                 }
@@ -72,9 +68,7 @@ void RTController::mouseClicked(const ofVec2f& position, const int button)
         {
             //  Grab sources or listeners (if applicable)
             _model.getSoundSource().grab(position);
-            
-            for (auto& listener: _model.getListeners())
-                listener.grab(position);
+            _model.getListener().grab(position);
             
             break;
         }
@@ -94,9 +88,8 @@ void RTController::mouseDragged(const ofVec2f& position, const int button)
         case NORMAL:
         {
             _model.getSoundSource().move(position);
-            
-            for (auto& listener : _model.getListeners())
-                listener.move(position);
+            _model.getListener().move(position);
+
             break;
         }
             
@@ -115,9 +108,7 @@ void RTController::mouseReleased(const ofVec2f& position, const int button)
         case NORMAL:
         {
             _model.getSoundSource().release();
-            
-            for (auto& listener : _model.getListeners())
-                listener.release();
+            _model.getListener().release();
             
             break;
         }
@@ -182,7 +173,7 @@ void RTController::draw() const
         case NORMAL:
         {
             //  Package data for drawing the room
-            auto data = std::make_tuple(_model.getRoom(), _model.getWorldScale(), _model.getSoundSource(), _model.getListeners());
+            auto data = std::make_tuple(_model.getRoom(), _model.getWorldScale(), _model.getSoundSource(), _model.getListener());
             _worldView.drawNormalState(data);
             break;
         }
@@ -192,7 +183,7 @@ void RTController::draw() const
         case SIM_DONE:
         {
 
-            auto data = std::make_tuple(_model.getRoom(), _model.getWorldScale(), _model.getSoundSource(), _model.getListeners(), _model.getRays());
+            auto data = std::make_tuple(_model.getRoom(), _model.getWorldScale(), _model.getSoundSource(), _model.getListener(), _model.getRays());
             _worldView.drawSimulateState(data);
             _worldView.drawSimulationProgress(_model.getCurrentSimulationTime() / _model.getSimulationTime());
 
@@ -250,18 +241,6 @@ void RTController::onClearRoomClicked()
 {
     _currentState = START;
     _model.reset();
-}
-
-void RTController::onAddSourceClicked()
-{
-    if (_currentState == NORMAL)
-        _model.addSoundSource(_worldView.getWindowOrigin());
-}
-
-void RTController::onAddListenerClicked()
-{
-    if (_currentState == NORMAL)
-        _model.addListener(_worldView.getWindowOrigin());
 }
 
 void RTController::onStartSimClicked()
@@ -348,4 +327,19 @@ ofVec2f RTController::snapCursorToFirstPoint(const ofVec2f& cursorPos)
     }
     
     return cursorPos;
+}
+
+void RTController::buildRoom()
+{
+    _currentState = NORMAL;
+    
+    _model.buildRoom();
+    _model.clearRoomVertices();
+    
+    auto windowOrigin = _worldView.getWindowOrigin();
+    auto windowDimensions = _worldView.getWindowDimensions();
+    auto windowHalfPoint = ofVec2f{windowOrigin.x + (windowDimensions.x / 2), windowOrigin.y + (windowDimensions.y / 2)};
+    
+    _model.addSoundSource(windowHalfPoint);
+    _model.addListener(windowHalfPoint + ofVec2f{100, 0});
 }

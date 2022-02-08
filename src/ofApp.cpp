@@ -1,8 +1,5 @@
 #include "ofApp.h"
 
-// const float ofApp::MAX_SIMULATION_TIME = 1.f;
-// const float ofApp::SAMPLING_FREQ = 44100.f;
-
 //--------------------------------------------------------------
 void ofApp::setup(){
     ofSetWindowTitle("Acoustic Raytracer");

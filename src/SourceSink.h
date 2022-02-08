@@ -45,6 +45,7 @@ class Listener : public Positioning
 {
     public:
 
+    Listener() { Listener(ofVec2f(0, 0), 0); _color = ofColor(0, 127, 255); }
     Listener(ofVec2f coordinates, size_t ident) : Positioning{coordinates}, _id{ident} { _color = ofColor(0, 127, 255); };
     ~Listener() = default;
     

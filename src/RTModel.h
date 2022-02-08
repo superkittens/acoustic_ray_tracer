@@ -29,8 +29,8 @@ class RTModel
     const Source&                   getSoundSource() const { return _source; }
     
     void                            addListener(const ofVec2f startingPos);
-    const std::vector<Listener>&    getListeners() const { return _listeners; }
-    std::vector<Listener>&          getListeners() { return _listeners; }
+    const Listener&                 getListener() const { return _listener; }
+    Listener&                       getListener() { return _listener; }
     
     void                            setSimulationTime(const float time) { _simulationTime = time; }
     const float&                    getSimulationTime() const { return _simulationTime; }
@@ -59,7 +59,7 @@ class RTModel
     private:
     std::vector<ofVec2f>    _points;
     Source                  _source;
-    std::vector<Listener>   _listeners;
+    Listener                _listener;
     float                   _worldScale;
     float                   _simulationTime;
     float                   _timeStep;

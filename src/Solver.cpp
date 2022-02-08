@@ -76,7 +76,7 @@ void Solver::simulationLoop()
 
 bool Solver::startSimulation(SolverInput parameters)
 {
-    if (parameters.listeners == nullptr)
+    if (parameters.listener == nullptr || parameters.source == nullptr)
         return false;
     
     reset();
@@ -189,46 +189,37 @@ void Solver::reset()
 
 void Solver::detectListenerCollision()
 {
-    for (auto& listener : *_simParameters.listeners)
+    float summedRaysLeft = 0.f;
+    float summedRaysRight = 0.f;
+    //                    float numLeftCollisions = 0;
+    //                    float numRightCollisions = 0;
+    
+    //  TODO: [Opt] Don't check every single ray.  Only the ones close to reaching the listener
+    for (auto& ray : _rays)
     {
-        float summedRaysLeft = 0.f;
-        float summedRaysRight = 0.f;
-        //                    float numLeftCollisions = 0;
-        //                    float numRightCollisions = 0;
-        
-        for (auto& ray : _rays)
+        //  Check to see if the ray has reached the listener
+        if (ray.getActiveStatus())
         {
-            //  Check to see if the ray has reached the listener
-            if (ray.getActiveStatus())
+            auto collidedPair = _simParameters.listener->checkRayCollision(ray.getPosition());
+            
+            bool didCollide = std::get<0>(collidedPair);
+            Direction collisionDirection = std::get<1>(collidedPair);
+            
+            if (didCollide)
             {
-                auto collidedPair = listener.checkRayCollision(ray.getPosition());
-                
-                bool didCollide = std::get<0>(collidedPair);
-                Direction collisionDirection = std::get<1>(collidedPair);
-                
-                if (didCollide)
-                {
-                    auto collidedListeners = ray.getListOfCollidedListeners();
-                    auto index = std::find(collidedListeners.begin(), collidedListeners.end(), listener.getId());
-                    if (index == collidedListeners.end())
-                    {
-                        ray.addCollidedListenerToRay(listener.getId());
-                        
-                        if (collisionDirection == LEFT)
-                            summedRaysLeft += ray.getLevel();
-                        else
-                            summedRaysRight += ray.getLevel();
-                    }
-                }
-                
-                //  Deactive ray when it reaches all listeners
-                if (ray.getListOfCollidedListeners().size() == _simParameters.listeners->size())
-                    ray.setInactive();
+                if (collisionDirection == LEFT)
+                    summedRaysLeft += ray.getLevel();
+                else
+                    summedRaysRight += ray.getLevel();
             }
+            
+            //  TODO:  [Phy] Don't deactivate?  Instead attenuate and continue propagation
+            //  Deactive ray
+            ray.setInactive();
         }
         
         //  Store summedRays into IR
-        listener.addSampleToIR(LEFT, summedRaysLeft);
-        listener.addSampleToIR(RIGHT, summedRaysRight);
+//        _simParameters.listener->addSampleToIR(LEFT, summedRaysLeft);
+//        _simParameters.listener->addSampleToIR(RIGHT, summedRaysRight);
     }
 }

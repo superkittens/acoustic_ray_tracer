@@ -15,16 +15,12 @@ void MainWindow::setup()
 {
     _roomBuildPanel.setup("Room Build Menu", "room_build_settings.xml", 10, 10);
     _roomBuildPanel.add(_createRoomButton.setup("Create Room"));
-    _roomBuildPanel.add(_addSourceButton.setup(("Add Source")));
-    _roomBuildPanel.add(_addListenerButton.setup("Add Listener"));
     _roomBuildPanel.add(_clearRoomButton.setup("Clear"));
     _roomBuildPanel.add(_worldScaleSlider.setup("Scale (m / px", MIN_SCALE, MIN_SCALE, MAX_SCALE, SLIDER_WIDTH, SLIDER_HEIGHT));
 
     _createRoomButton.addListener(&_controller, &RTController::onCreateRoomClicked);
     _worldScaleSlider.addListener(&_controller, &RTController::onWorldScaleSliderChanged);
     _clearRoomButton.addListener(&_controller, &RTController::onClearRoomClicked);
-    _addSourceButton.addListener(&_controller, &RTController::onAddSourceClicked);
-    _addListenerButton.addListener(&_controller, &RTController::onAddListenerClicked);
     
     _simulationPanel.setup("Simulation Menu", "sim_settings.xml", 10, 220);
     _simulationPanel.add(_startSimButton.setup("Start"));

@@ -5,14 +5,16 @@ const ofVec2f WorldView::_WINDOW_OFFSET = ofVec2f{300, 200};
 const ofVec2f WorldView::_WINDOW_DIMENSIONS = ofVec2f{2000, 800};
 const ofVec2f WorldView::_STATUS_BAR_OFFSET = ofVec2f{300, 20};
 const ofVec2f WorldView::_STATUS_BAR_DIMENSIONS = ofVec2f{2000, 100};
-const float WorldView::CROSSHAIR_LENGTH = 50.0;
+const float WorldView::_CROSSHAIR_LENGTH = 50.0;
 const float WorldView::_STATUS_BAR_COL_LENGTH = 300.0;
+
 
 void WorldView::setCursor(const ofVec2f& position)
 {
     _cursorPosition = position;
 }
 
+//  The status bar gives useful information at different states of the simulator
 void WorldView::drawStatusBar(const RTState state) const{
     ofSetColor(255, 255, 255, 40);
     ofDrawRectangle(_STATUS_BAR_OFFSET, _STATUS_BAR_DIMENSIONS.x, _STATUS_BAR_DIMENSIONS.y);
@@ -118,14 +120,16 @@ void WorldView::drawEmptyWindow() const
     drawWindow();
 }
 
+//  Called when the room is being built
+//  The user defines the room's vertices and this function will draw lines between them to form walls
 void WorldView::drawRoomSoFar(const std::tuple<const std::vector<ofVec2f>&, const float>& roomDrawData) const
 {   
     //  Draw crosshairs on cursor
     drawWindow();
     ofSetColor(255, 255, 255);
     ofSetLineWidth(1.0);
-    ofDrawLine(_cursorPosition.x, _cursorPosition.y - CROSSHAIR_LENGTH, _cursorPosition.x, _cursorPosition.y + CROSSHAIR_LENGTH);
-    ofDrawLine(_cursorPosition.x - CROSSHAIR_LENGTH, _cursorPosition.y, _cursorPosition.x + CROSSHAIR_LENGTH, _cursorPosition.y);
+    ofDrawLine(_cursorPosition.x, _cursorPosition.y - _CROSSHAIR_LENGTH, _cursorPosition.x, _cursorPosition.y + _CROSSHAIR_LENGTH);
+    ofDrawLine(_cursorPosition.x - _CROSSHAIR_LENGTH, _cursorPosition.y, _cursorPosition.x + _CROSSHAIR_LENGTH, _cursorPosition.y);
     
     //  Unpack the tuple
     const std::vector<ofVec2f>& points = std::get<0>(roomDrawData);
@@ -166,7 +170,8 @@ void WorldView::drawRoomSoFar(const std::tuple<const std::vector<ofVec2f>&, cons
     drawCursorPosInStatusBar(_cursorPosition - _WINDOW_OFFSET);
 }
 
-void WorldView::drawNormalState(const std::tuple<const Room&, const float, const Source&, const std::vector<Listener>&>& data) const
+//  Called when the room is fully build but no simulation is running
+void WorldView::drawNormalState(const std::tuple<const Room&, const float, const Source&, const Listener&>& data) const
 {
     drawWindow();
     
@@ -174,7 +179,7 @@ void WorldView::drawNormalState(const std::tuple<const Room&, const float, const
     const Room& room = std::get<0>(data);
     const float worldScale = std::get<1>(data);
     const Source source = std::get<2>(data);
-    const std::vector<Listener>& listeners = std::get<3>(data);
+    const Listener& listener = std::get<3>(data);
     
     //  Draw walls
     ofSetLineWidth(5.0);
@@ -211,31 +216,26 @@ void WorldView::drawNormalState(const std::tuple<const Room&, const float, const
         ofDrawCircle(source.getCoordinates(), source.getRadius());
     }
 
-    
-    for (const auto& listener: listeners)
-    {
-        ofSetColor(listener.getColor());
-        ofDrawCircle(listener.getCoordinates(), listener.getRadius());
-        
-        ofSetColor(255, 255, 255);
-        std::string idString = to_string(listener.getId());
-        ofDrawBitmapString(idString, listener.getCoordinates());
-    }
+    ofSetColor(listener.getColor());
+    ofDrawCircle(listener.getCoordinates(), listener.getRadius());
 }
 
+//  Draw the room and the acoustic rays as the simulation is running
+//  This function is also called when the simulation is complete (when the program state is SIM_DONE)
 void WorldView::drawSimulateState(const SimulationData& data) const
 {
     //  Unpack the tuple
     const Room& room = std::get<0>(data);
     const float worldScale = std::get<1>(data);
     const Source source = std::get<2>(data);
-    const std::vector<Listener>& listeners = std::get<3>(data);
+    const Listener& listener = std::get<3>(data);
     const std::vector<Ray>& rays = std::get<4>(data);
     
-    drawNormalState(std::make_tuple(room, worldScale, source, listeners));
+    drawNormalState(std::make_tuple(room, worldScale, source, listener));
     
     //  Draw the rays
     ofSetLineWidth(0.5);
+    ofSetColor(255, 255, 255);
     for (const auto& ray : rays)
     {
         ofDrawCircle(ray.getPosition(), 2);
@@ -258,7 +258,7 @@ void WorldView::drawSimulationProgress(const float timeRatio) const
     
     ofSetColor(255, 255, 255, 40);
     ofDrawRectangle(_WINDOW_OFFSET.x + _STATUS_BAR_COL_LENGTH, _STATUS_BAR_OFFSET.y + 30, progressBarWidth, progressBarHeight);
-    ofSetColor(255, 0, 128);
+    ofSetColor(210, 84, 143);
     ofDrawRectangle(_WINDOW_OFFSET.x + _STATUS_BAR_COL_LENGTH, _STATUS_BAR_OFFSET.y + 30, progressBarWidth * timeRatio, progressBarHeight);
     
     ofSetColor(255, 255, 255);
@@ -266,22 +266,24 @@ void WorldView::drawSimulationProgress(const float timeRatio) const
     ofDrawBitmapString(progressString, _WINDOW_OFFSET.x + _STATUS_BAR_COL_LENGTH, _STATUS_BAR_OFFSET.y + 80);
 }
 
+//  For debugging purposes only
+//  Draws a single ray
 void WorldView::drawSimulateStateDebug(const SimulationDataDebug& data) const
 {
     //  Unpack the tuple
     const Room& room = std::get<0>(data);
     const float worldScale = std::get<1>(data);
     const Source source = std::get<2>(data);
-    const std::vector<Listener>& listeners = std::get<3>(data);
+    const Listener& listener = std::get<3>(data);
     const ofVec2f rayPos = std::get<4>(data);
     
-    drawNormalState(std::make_tuple(room, worldScale, source, listeners));
+    drawNormalState(std::make_tuple(room, worldScale, source, listener));
     
     ofSetColor(255, 255, 255);
     ofDrawCircle(rayPos, 25);
 }
 
-
+//  Draw the window frame where the room lives
 void WorldView::drawWindow() const
 {
     ofSetColor(255, 255, 255);

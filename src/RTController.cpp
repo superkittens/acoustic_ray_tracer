@@ -161,6 +161,8 @@ void RTController::keyReleased(const int key)
 
 void RTController::draw() const
 {
+    _worldView.drawStatusBar(_currentState);
+    
     switch (_currentState)
     {
         case START:
@@ -187,10 +189,12 @@ void RTController::draw() const
             
         case SIM_RUNNING:
         case SIM_PAUSED:
+        case SIM_DONE:
         {
 
             auto data = std::make_tuple(_model.getRoom(), _model.getWorldScale(), _model.getSoundSource(), _model.getListeners(), _model.getRays());
             _worldView.drawSimulateState(data);
+            _worldView.drawSimulationProgress(_model.getCurrentSimulationTime() / _model.getSimulationTime());
 
             break;
         }
@@ -215,8 +219,13 @@ void RTController::update()
         //  Get the latest ray data from the solver when running the simulation
         case SIM_RUNNING:
         {
-            _model.requestSnapshot();
-            _model.updateSnapshot();
+            if (_model.getSimulationStatus())
+            {
+                _model.requestSnapshot();
+                _model.updateSnapshot();
+            }
+            else
+                _currentState = SIM_DONE;
             
             break;
         }
@@ -258,7 +267,7 @@ void RTController::onAddListenerClicked()
 void RTController::onStartSimClicked()
 {
     //  The simulator must be in NORMAL mode (ie. a room, source and listener must be present)
-    if (_currentState == NORMAL)
+    if (_currentState == NORMAL || _currentState == SIM_DONE)
     {
         _model.startRayTrace();
         _currentState = SIM_RUNNING;
@@ -269,8 +278,14 @@ void RTController::onPauseSimClicked()
 {
     if (_currentState == SIM_RUNNING)
     {
-        _model.pauseRayTrace();
+        _model.pauseRayTrace(true);
         _currentState = SIM_PAUSED;
+    }
+    
+    else
+    {
+        _model.pauseRayTrace(false);
+        _currentState = SIM_RUNNING;
     }
 }
 

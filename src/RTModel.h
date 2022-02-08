@@ -34,13 +34,15 @@ class RTModel
     
     void                            setSimulationTime(const float time) { _simulationTime = time; }
     const float&                    getSimulationTime() const { return _simulationTime; }
+    float                           getCurrentSimulationTime() const { return _solver.getSimulationTime(); }
+    bool                            getSimulationStatus() const { return _solver.getSimulationStatus(); }
     void                            setNumRays(const size_t numRays) { _numRays = numRays; }
     const size_t                    getNumRays() const { return _numRays; }
     void                            setTimeStep(const float timeStep) { _timeStep = timeStep; }
     const float&                    getTimeStep() const { return _timeStep; }
     
     bool                            startRayTrace();
-    void                            pauseRayTrace();
+    void                            pauseRayTrace(bool pause);
     void                            stopRayTrace();
     
     void                            requestSnapshot();

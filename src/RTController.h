@@ -8,15 +8,6 @@
 
 class RTController
 {
-    typedef enum
-    {
-        START = 0,
-        ROOM_BUILD,
-        NORMAL,
-        SIM_RUNNING,
-        SIM_PAUSED
-    }RTState;
-
     public:
     void setup(const float worldScale, const float simTime, const float timeStep, const size_t numRays);
     void draw() const;

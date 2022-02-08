@@ -5,6 +5,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+    ofSetWindowTitle("Acoustic Raytracer");
     _mainWindow.setup();
 }
 

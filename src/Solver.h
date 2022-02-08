@@ -30,6 +30,7 @@ private:
     static const float C;
     bool _simulationActive = true;
     bool _simulationPaused = false;
+    bool _stopSimulationRequested = false;
 
     std::vector<Ray> _rays;
     std::vector<Ray> _raySnapshot;
@@ -40,7 +41,7 @@ private:
     bool        _snapshotRequested = false;
     bool        _snapshotIsReady = false;
     
-    std::mutex  _requestSnapshotMutex;
+    mutable std::mutex  _simLock;
     std::mutex  _snapshotDoneMutex;
     
     void detectCollisionWithWallAndReflect(Ray& ray);
@@ -52,11 +53,12 @@ private:
 public:
     
     void    update();
-    float   getSimulationTime() const { return _currentTime; }
-    bool    getSimulationStatus() const { return _simulationActive; }
+    float   getSimulationTime() const;
+    bool    getSimulationStatus() const;
     bool    startSimulation(SolverInput parameters);
-    void    pauseSimulation() { _simulationActive = false; }
-    void    restartSimulation() { _simulationActive = true; }
+    void    pauseSimulation(bool pause);
+    void    requestSimulationStop();
+    void    reset();
     
     void    requestSimulationSnapshot();
     

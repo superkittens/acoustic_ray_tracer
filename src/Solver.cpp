@@ -14,26 +14,41 @@ const float Solver::C = 343.0;
 //     }
  }
 
+float Solver::getSimulationTime() const
+{
+    std::lock_guard<std::mutex> guard(_simLock);
+    return _currentTime;
+}
+
+bool Solver::getSimulationStatus() const
+{
+    std::lock_guard<std::mutex> guard(_simLock);
+    return _simulationActive;
+}
+
 void Solver::simulationLoop()
 {
-    while (_simulationActive)
+    while (1)
     {
-        if (!_simulationPaused)
+        std::lock_guard<std::mutex> guard(_simLock);
+        if (_simulationActive)
         {
-            //  If the snapshot of the simulation is requested, peel off a copy of the states of the rays
-            std::lock_guard<std::mutex> guard(_requestSnapshotMutex);
-            if (_snapshotRequested)
+            if (!_simulationPaused)
             {
-                for (const auto& ray : _rays)
-                    _raySnapshot.push_back(ray);
+                //  If the snapshot of the simulation is requested, peel off a copy of the states of the rays
+                if (_snapshotRequested)
+                {
+                    _raySnapshot.clear();
+                    for (const auto& ray : _rays)
+                        _raySnapshot.push_back(ray);
+                    
+                    _snapshotRequested = false;
+                    
+                    std::lock_guard<std::mutex> readyGuard(_snapshotDoneMutex);
+                    _snapshotIsReady = true;
+                }
                 
-                _snapshotRequested = false;
-                
-                std::lock_guard<std::mutex> readyGuard(_snapshotDoneMutex);
-                _snapshotIsReady = true;
-            }
-            else
-            {
+                //  Update rays
                 for (auto& ray : _rays)
                 {
                     detectCollisionWithWallAndReflect(ray);
@@ -41,13 +56,18 @@ void Solver::simulationLoop()
                 }
                 
                 _currentTime += _simParameters.timeStep;
+                
                 if (_currentTime >= _simParameters.simulationTime)
                 {
-                    std::cout << "Simulation finished\n";
                     _simulationActive = false;
+                    break;
                 }
-                
-//                std::cout << "Simulation Time: " << _currentTime << " s\n";
+            }
+            
+            if (_stopSimulationRequested)
+            {
+                _simulationActive = false;
+                break;
             }
         }
     }
@@ -58,6 +78,8 @@ bool Solver::startSimulation(SolverInput parameters)
 {
     if (parameters.listeners == nullptr)
         return false;
+    
+    reset();
     
     _simParameters = parameters;
     
@@ -74,7 +96,6 @@ bool Solver::startSimulation(SolverInput parameters)
     }
     
     _simulationActive = true;
-    _simulationPaused = false;
     
     std::thread sim_thread([&]{ simulationLoop(); });
     sim_thread.detach();
@@ -82,9 +103,25 @@ bool Solver::startSimulation(SolverInput parameters)
     return true;
 }
 
+void Solver::pauseSimulation(bool pause)
+{
+    std::lock_guard<std::mutex> guard(_simLock);
+    if (pause)
+        _simulationPaused = true;
+    else
+        _simulationPaused = false;
+}
+
+void Solver::requestSimulationStop()
+{
+    std::lock_guard<std::mutex> guard(_simLock);
+    if (!_stopSimulationRequested)
+        _stopSimulationRequested = true;
+}
+
 void Solver::requestSimulationSnapshot()
 {
-    std::lock_guard<std::mutex> guard(_requestSnapshotMutex);
+    std::lock_guard<std::mutex> guard(_simLock);
     _snapshotRequested = true;
 }
 
@@ -94,12 +131,25 @@ bool Solver::getRays(std::vector<Ray>& destinationVec)
     if (_snapshotIsReady)
     {
         destinationVec = std::move(_raySnapshot);
-//        std::copy(begin(_raySnapshot), end(_raySnapshot), std::back_inserter(destinationVec));
         _snapshotIsReady = false;
         
         return true;
     }
     return false;
+}
+
+void Solver::reset()
+{
+    _simulationActive = false;
+    _simulationPaused = false;
+    _snapshotRequested = false;
+    _snapshotIsReady = false;
+    _stopSimulationRequested = false;
+    _currentTime = 0.0;
+    
+    _raySnapshot.clear();
+    _rays.clear();
+    
 }
 
  //  Ray reflection uses the Householder reflection matrix to determine the new velocity vector for a ray

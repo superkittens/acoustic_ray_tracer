@@ -8,8 +8,14 @@
 #ifndef RTCommon_h
 #define RTCommon_h
 
-#include "ofMain.h"
-
-typedef std::vector<std::vector<ofVec2f>> PathVec;
+typedef enum
+{
+    START = 0,
+    ROOM_BUILD,
+    NORMAL,
+    SIM_RUNNING,
+    SIM_PAUSED,
+    SIM_DONE
+}RTState;
 
 #endif /* RTCommon_h */

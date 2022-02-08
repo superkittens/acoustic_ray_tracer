@@ -1,13 +1,116 @@
 
 #include "WorldView.h"
 
-const ofVec2f WorldView::_windowOffset = ofVec2f{400, 50};
-const ofVec2f WorldView::_windowDimensions = ofVec2f{2000, 800};
+const ofVec2f WorldView::_WINDOW_OFFSET = ofVec2f{300, 200};
+const ofVec2f WorldView::_WINDOW_DIMENSIONS = ofVec2f{2000, 800};
+const ofVec2f WorldView::_STATUS_BAR_OFFSET = ofVec2f{300, 20};
+const ofVec2f WorldView::_STATUS_BAR_DIMENSIONS = ofVec2f{2000, 100};
 const float WorldView::CROSSHAIR_LENGTH = 50.0;
+const float WorldView::_STATUS_BAR_COL_LENGTH = 300.0;
 
 void WorldView::setCursor(const ofVec2f& position)
 {
     _cursorPosition = position;
+}
+
+void WorldView::drawStatusBar(const RTState state) const{
+    ofSetColor(255, 255, 255, 40);
+    ofDrawRectangle(_STATUS_BAR_OFFSET, _STATUS_BAR_DIMENSIONS.x, _STATUS_BAR_DIMENSIONS.y);
+    
+    std::string stateString = "Current Mode: ";
+    const ofVec2f simulationIndOffset(30, 60);
+    const float simulationIndRadius = 20;
+    const float paddingY = 20;
+    
+    switch (state)
+    {
+        case START:
+        {
+            stateString += "Start";
+            ofSetColor(127, 127, 127);
+            ofSetLineWidth(5);
+            ofNoFill();
+            ofDrawCircle(_STATUS_BAR_OFFSET.x + simulationIndOffset.x, _STATUS_BAR_OFFSET.y + simulationIndOffset.y, simulationIndRadius);
+            break;
+        }
+            
+        case ROOM_BUILD:
+        {
+            stateString += "Build Room";
+            
+            ofSetColor(127, 127, 127);
+            ofSetLineWidth(5);
+            ofNoFill();
+            ofDrawCircle(_STATUS_BAR_OFFSET.x + simulationIndOffset.x, _STATUS_BAR_OFFSET.y + simulationIndOffset.y, simulationIndRadius);
+            
+            //  Draw cursor text
+            ofSetColor(255, 255, 255);
+            ofDrawBitmapString("Cursor Pos: ", _STATUS_BAR_OFFSET.x + _STATUS_BAR_COL_LENGTH, _STATUS_BAR_OFFSET.y + paddingY);
+            break;
+        }
+            
+        case NORMAL:
+        {
+            stateString += "Ready";
+            
+            ofSetColor(236, 106, 94);
+            ofFill();
+            ofDrawCircle(_STATUS_BAR_OFFSET.x + simulationIndOffset.x, _STATUS_BAR_OFFSET.y + simulationIndOffset.y, simulationIndRadius);
+            
+            ofSetColor(255, 255, 255);
+            ofDrawBitmapString("Simulation:\nStopped/Not Started", _STATUS_BAR_OFFSET.x + 70, _STATUS_BAR_OFFSET.y + simulationIndOffset.y);
+            ofDrawBitmapString("Simulation Progress:", _STATUS_BAR_OFFSET.x + _STATUS_BAR_COL_LENGTH, _STATUS_BAR_OFFSET.y + paddingY);
+            break;
+        }
+            
+        case SIM_RUNNING:
+        {
+            stateString += "Simulate";
+            
+            ofSetColor(244, 190, 79);
+            ofFill();
+            ofDrawCircle(_STATUS_BAR_OFFSET.x + simulationIndOffset.x, _STATUS_BAR_OFFSET.y + simulationIndOffset.y, simulationIndRadius);
+            
+            ofSetColor(255, 255, 255);
+            ofDrawBitmapString("Simulation:\nRunning", _STATUS_BAR_OFFSET.x + 70, _STATUS_BAR_OFFSET.y + simulationIndOffset.y);
+            ofDrawBitmapString("Simulation Progress:", _STATUS_BAR_OFFSET.x + _STATUS_BAR_COL_LENGTH, _STATUS_BAR_OFFSET.y + paddingY);
+            break;
+        }
+            
+        case SIM_PAUSED:
+        {
+            stateString += "Simulate";
+            
+            ofSetColor(215, 95, 0);
+            ofFill();
+            ofDrawCircle(_STATUS_BAR_OFFSET.x + simulationIndOffset.x, _STATUS_BAR_OFFSET.y + simulationIndOffset.y, simulationIndRadius);
+            
+            ofSetColor(255, 255, 255);
+            ofDrawBitmapString("Simulation:\nPaused", _STATUS_BAR_OFFSET.x + 70, _STATUS_BAR_OFFSET.y + simulationIndOffset.y);
+            ofDrawBitmapString("Simulation Progress:", _STATUS_BAR_OFFSET.x + _STATUS_BAR_COL_LENGTH, _STATUS_BAR_OFFSET.y + paddingY);
+            break;
+        }
+            
+        case SIM_DONE:
+        {
+            stateString += "Simulate";
+            
+            ofSetColor(97, 197, 85);
+            ofFill();
+            ofDrawCircle(_STATUS_BAR_OFFSET.x + simulationIndOffset.x, _STATUS_BAR_OFFSET.y + simulationIndOffset.y, simulationIndRadius);
+            
+            ofSetColor(255, 255, 255);
+            ofDrawBitmapString("Simulation:\nDONE", _STATUS_BAR_OFFSET.x + 70, _STATUS_BAR_OFFSET.y + simulationIndOffset.y);
+            ofDrawBitmapString("Simulation Progress:", _STATUS_BAR_OFFSET.x + _STATUS_BAR_COL_LENGTH, _STATUS_BAR_OFFSET.y + paddingY);
+            break;
+        }
+            
+        default:
+            break;
+    }
+    
+    ofSetColor(255, 255, 255);
+    ofDrawBitmapString(stateString, _STATUS_BAR_OFFSET.x + 5, _STATUS_BAR_OFFSET.y + paddingY);
 }
 
 void WorldView::drawEmptyWindow() const
@@ -36,12 +139,12 @@ void WorldView::drawRoomSoFar(const std::tuple<const std::vector<ofVec2f>&, cons
         for (auto i = 1; i < points.size(); ++i)
         {
             //  Draw coordinates of each vertex
-            ofVec2f pointWorldView = prevPoint - _windowOffset;
+            ofVec2f pointWorldView = prevPoint - _WINDOW_OFFSET;
             std::string coordinateString = "( " + to_string(pointWorldView.x) + " , " + to_string(pointWorldView.y) + " )";
             ofDrawBitmapString(coordinateString, prevPoint.x, prevPoint.y - 10);
             
             auto currentPoint = points.at(i);
-            pointWorldView = currentPoint - _windowOffset;
+            pointWorldView = currentPoint - _WINDOW_OFFSET;
             coordinateString = "( " + to_string(pointWorldView.x) + " , " + to_string(pointWorldView.y) + " )";
             ofDrawBitmapString(coordinateString, currentPoint.x, currentPoint.y - 10);
             
@@ -60,9 +163,7 @@ void WorldView::drawRoomSoFar(const std::tuple<const std::vector<ofVec2f>&, cons
     }
 
     //  Draw coordinates on screen
-    auto worldViewCoordinate = _cursorPosition - _windowOffset;
-    std::string coordinatesString = "( " + to_string(worldViewCoordinate.x) + " , " + to_string(worldViewCoordinate.y) + " )";
-    ofDrawBitmapString(coordinatesString, _windowOffset.x + 10, _windowOffset.y + _windowDimensions.y - 10);
+    drawCursorPosInStatusBar(_cursorPosition - _WINDOW_OFFSET);
 }
 
 void WorldView::drawNormalState(const std::tuple<const Room&, const float, const Source&, const std::vector<Listener>&>& data) const
@@ -106,6 +207,7 @@ void WorldView::drawNormalState(const std::tuple<const Room&, const float, const
     if (source.getVisibility())
     {
         ofSetColor(source.getColor());
+        ofFill();
         ofDrawCircle(source.getCoordinates(), source.getRadius());
     }
 
@@ -136,15 +238,32 @@ void WorldView::drawSimulateState(const SimulationData& data) const
     ofSetLineWidth(0.5);
     for (const auto& ray : rays)
     {
-        ofVec2f prevPoint = ray.getRayPaths().at(0);
-        for (auto i = 1; i < ray.getRayPaths().size(); ++i)
-        {
-            ofDrawLine(prevPoint, ray.getRayPaths().at(i));
-            prevPoint = ray.getRayPaths().at(i);
-        }
-        
-        ofDrawLine(prevPoint, ray.getPosition());
+        ofDrawCircle(ray.getPosition(), 2);
+//        ofVec2f prevPoint = ray.getRayPaths().at(0);
+//        for (auto i = 1; i < ray.getRayPaths().size(); ++i)
+//        {
+//            ofDrawLine(prevPoint, ray.getRayPaths().at(i));
+//            prevPoint = ray.getRayPaths().at(i);
+//        }
+//
+//        ofDrawLine(prevPoint, ray.getPosition());
     }
+}
+
+//  Draw the simulation progress bar on the status bar
+void WorldView::drawSimulationProgress(const float timeRatio) const
+{
+    const float progressBarWidth = 500.0;
+    const float progressBarHeight = 30.0;
+    
+    ofSetColor(255, 255, 255, 40);
+    ofDrawRectangle(_WINDOW_OFFSET.x + _STATUS_BAR_COL_LENGTH, _STATUS_BAR_OFFSET.y + 30, progressBarWidth, progressBarHeight);
+    ofSetColor(255, 0, 128);
+    ofDrawRectangle(_WINDOW_OFFSET.x + _STATUS_BAR_COL_LENGTH, _STATUS_BAR_OFFSET.y + 30, progressBarWidth * timeRatio, progressBarHeight);
+    
+    ofSetColor(255, 255, 255);
+    std::string progressString = to_string(timeRatio * 100.0) + " %";
+    ofDrawBitmapString(progressString, _WINDOW_OFFSET.x + _STATUS_BAR_COL_LENGTH, _STATUS_BAR_OFFSET.y + 80);
 }
 
 void WorldView::drawSimulateStateDebug(const SimulationDataDebug& data) const
@@ -165,16 +284,27 @@ void WorldView::drawSimulateStateDebug(const SimulationDataDebug& data) const
 
 void WorldView::drawWindow() const
 {
+    ofSetColor(255, 255, 255);
+    ofDrawBitmapString("World View", _WINDOW_OFFSET.x, _WINDOW_OFFSET.y - 10);
+    
+    ofFill();
     ofSetColor(255, 255, 255, 80);
-    ofDrawRectangle(_windowOffset.x, _windowOffset.y, _windowDimensions.x, _windowDimensions.y);
+    ofDrawRectangle(_WINDOW_OFFSET.x, _WINDOW_OFFSET.y, _WINDOW_DIMENSIONS.x, _WINDOW_DIMENSIONS.y);
+}
+
+void WorldView::drawCursorPosInStatusBar(const ofVec2f pos) const
+{
+    ofSetColor(255, 255, 255);
+    std::string posString = "x: " + to_string(pos.x) + "\n" + "y: " + to_string(pos.y);
+    ofDrawBitmapString(posString, _STATUS_BAR_OFFSET.x + _STATUS_BAR_COL_LENGTH, _STATUS_BAR_OFFSET.y + 40);
 }
 
 bool WorldView::withinBounds(const ofVec2f& position) const
 {
-    if (position.x >= _windowOffset.x && 
-        position.x <= _windowOffset.x + _windowDimensions.x &&
-        position.y >= _windowOffset.y &&
-        position.y <= _windowOffset.y + _windowDimensions.y)
+    if (position.x >= _WINDOW_OFFSET.x &&
+        position.x <= _WINDOW_OFFSET.x + _WINDOW_DIMENSIONS.x &&
+        position.y >= _WINDOW_OFFSET.y &&
+        position.y <= _WINDOW_OFFSET.y + _WINDOW_DIMENSIONS.y)
 
         return true;
 

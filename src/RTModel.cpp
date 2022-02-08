@@ -47,19 +47,22 @@ bool RTModel::startRayTrace()
     inputs.numRays = _numRays;
     inputs.worldScale = _worldScale;
     
+    _raySnapshots.clear();
+    _snapshotRequested = false;
+    
     _solver.startSimulation(inputs);
     
     return true;
 }
 
-void RTModel::pauseRayTrace()
+void RTModel::pauseRayTrace(bool pause)
 {
-    
+    _solver.pauseSimulation(pause);
 }
 
 void RTModel::stopRayTrace()
 {
-    
+    _solver.requestSimulationStop();
 }
 
 void RTModel::requestSnapshot()

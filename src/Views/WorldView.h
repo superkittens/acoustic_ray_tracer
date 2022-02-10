@@ -19,8 +19,8 @@ class WorldView
     void    drawEmptyWindow() const;
     void    drawStatusBar(const RTState state) const;
     void    drawRoomSoFar(const std::tuple<const std::vector<ofVec2f>&, const float>& roomDrawData) const;
-    void    drawNormalState(const std::tuple<const Room&, const float, const Source&, const Listener&>& data) const;
-    void    drawSimulateState(const SimulationData& data) const;
+    void    drawNormalState(const Room& room, const float scale, const Source& source, const Listener& listener) const;
+    void    drawSimulateState(const Room& room, const float scale, const Source& source, const Listener& listener, const std::vector<Ray>& rays) const;
     void    drawSimulateStateDebug(const SimulationDataDebug& data) const;
     void    drawSimulationProgress(const float time) const;
     bool    withinBounds(const ofVec2f& position) const;

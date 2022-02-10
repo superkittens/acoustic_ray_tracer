@@ -45,11 +45,11 @@ class RTModel
     void                            pauseRayTrace(bool pause);
     void                            stopRayTrace();
     
-    void                            requestSnapshot();
     void                            updateSnapshot();
-    bool                            isSnapshotReady() const;
-    const std::vector<Ray>&         getRays() const;
-    const ofVec2f&                  getRay() const { return _solver.getRay(); }
+    const std::vector<Ray>&         getRays() const { return _raySnapshots; }
+    const std::vector<float>&       getImpulseResponse(const Direction& dir) const;
+    
+    const ofVec2f&                  getRay() const { return _solver.getRay(); } //  Debug only
     
     void                            update() { _solver.update(); };
     
@@ -70,6 +70,7 @@ class RTModel
     Solver                  _solver;
     
     std::vector<Ray>        _raySnapshots;
+    std::vector<float>      _irLeftSnapshot, _irRightSnapshot;
     bool                    _snapshotRequested = false;
 };
 

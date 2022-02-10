@@ -1,7 +1,7 @@
 
 #include "WorldView.h"
 
-const ofVec2f WorldView::_WINDOW_OFFSET = ofVec2f{300, 200};
+const ofVec2f WorldView::_WINDOW_OFFSET = ofVec2f{300, 170};
 const ofVec2f WorldView::_WINDOW_DIMENSIONS = ofVec2f{2000, 800};
 const ofVec2f WorldView::_STATUS_BAR_OFFSET = ofVec2f{300, 20};
 const ofVec2f WorldView::_STATUS_BAR_DIMENSIONS = ofVec2f{2000, 100};
@@ -16,7 +16,7 @@ void WorldView::setCursor(const ofVec2f& position)
 
 //  The status bar gives useful information at different states of the simulator
 void WorldView::drawStatusBar(const RTState state) const{
-    ofSetColor(255, 255, 255, 40);
+    ofSetColor(WHITE, 40);
     ofDrawRectangle(_STATUS_BAR_OFFSET, _STATUS_BAR_DIMENSIONS.x, _STATUS_BAR_DIMENSIONS.y);
     
     std::string stateString = "Current Mode: ";
@@ -29,7 +29,7 @@ void WorldView::drawStatusBar(const RTState state) const{
         case START:
         {
             stateString += "Start";
-            ofSetColor(127, 127, 127);
+            ofSetColor(GRAY);
             ofSetLineWidth(5);
             ofNoFill();
             ofDrawCircle(_STATUS_BAR_OFFSET.x + simulationIndOffset.x, _STATUS_BAR_OFFSET.y + simulationIndOffset.y, simulationIndRadius);
@@ -40,13 +40,13 @@ void WorldView::drawStatusBar(const RTState state) const{
         {
             stateString += "Build Room";
             
-            ofSetColor(127, 127, 127);
+            ofSetColor(GRAY);
             ofSetLineWidth(5);
             ofNoFill();
             ofDrawCircle(_STATUS_BAR_OFFSET.x + simulationIndOffset.x, _STATUS_BAR_OFFSET.y + simulationIndOffset.y, simulationIndRadius);
             
             //  Draw cursor text
-            ofSetColor(255, 255, 255);
+            ofSetColor(WHITE);
             ofDrawBitmapString("Cursor Pos: ", _STATUS_BAR_OFFSET.x + _STATUS_BAR_COL_LENGTH, _STATUS_BAR_OFFSET.y + paddingY);
             break;
         }
@@ -55,11 +55,11 @@ void WorldView::drawStatusBar(const RTState state) const{
         {
             stateString += "Ready";
             
-            ofSetColor(236, 106, 94);
+            ofSetColor(RED);
             ofFill();
             ofDrawCircle(_STATUS_BAR_OFFSET.x + simulationIndOffset.x, _STATUS_BAR_OFFSET.y + simulationIndOffset.y, simulationIndRadius);
             
-            ofSetColor(255, 255, 255);
+            ofSetColor(WHITE);
             ofDrawBitmapString("Simulation:\nStopped/Not Started", _STATUS_BAR_OFFSET.x + 70, _STATUS_BAR_OFFSET.y + simulationIndOffset.y);
             ofDrawBitmapString("Simulation Progress:", _STATUS_BAR_OFFSET.x + _STATUS_BAR_COL_LENGTH, _STATUS_BAR_OFFSET.y + paddingY);
             break;
@@ -69,11 +69,11 @@ void WorldView::drawStatusBar(const RTState state) const{
         {
             stateString += "Simulate";
             
-            ofSetColor(244, 190, 79);
+            ofSetColor(YELLOW);
             ofFill();
             ofDrawCircle(_STATUS_BAR_OFFSET.x + simulationIndOffset.x, _STATUS_BAR_OFFSET.y + simulationIndOffset.y, simulationIndRadius);
             
-            ofSetColor(255, 255, 255);
+            ofSetColor(WHITE);
             ofDrawBitmapString("Simulation:\nRunning", _STATUS_BAR_OFFSET.x + 70, _STATUS_BAR_OFFSET.y + simulationIndOffset.y);
             ofDrawBitmapString("Simulation Progress:", _STATUS_BAR_OFFSET.x + _STATUS_BAR_COL_LENGTH, _STATUS_BAR_OFFSET.y + paddingY);
             break;
@@ -83,11 +83,11 @@ void WorldView::drawStatusBar(const RTState state) const{
         {
             stateString += "Simulate";
             
-            ofSetColor(215, 95, 0);
+            ofSetColor(ORANGE);
             ofFill();
             ofDrawCircle(_STATUS_BAR_OFFSET.x + simulationIndOffset.x, _STATUS_BAR_OFFSET.y + simulationIndOffset.y, simulationIndRadius);
             
-            ofSetColor(255, 255, 255);
+            ofSetColor(WHITE);
             ofDrawBitmapString("Simulation:\nPaused", _STATUS_BAR_OFFSET.x + 70, _STATUS_BAR_OFFSET.y + simulationIndOffset.y);
             ofDrawBitmapString("Simulation Progress:", _STATUS_BAR_OFFSET.x + _STATUS_BAR_COL_LENGTH, _STATUS_BAR_OFFSET.y + paddingY);
             break;
@@ -97,11 +97,11 @@ void WorldView::drawStatusBar(const RTState state) const{
         {
             stateString += "Simulate";
             
-            ofSetColor(97, 197, 85);
+            ofSetColor(GREEN);
             ofFill();
             ofDrawCircle(_STATUS_BAR_OFFSET.x + simulationIndOffset.x, _STATUS_BAR_OFFSET.y + simulationIndOffset.y, simulationIndRadius);
             
-            ofSetColor(255, 255, 255);
+            ofSetColor(WHITE);
             ofDrawBitmapString("Simulation:\nDONE", _STATUS_BAR_OFFSET.x + 70, _STATUS_BAR_OFFSET.y + simulationIndOffset.y);
             ofDrawBitmapString("Simulation Progress:", _STATUS_BAR_OFFSET.x + _STATUS_BAR_COL_LENGTH, _STATUS_BAR_OFFSET.y + paddingY);
             break;
@@ -111,7 +111,7 @@ void WorldView::drawStatusBar(const RTState state) const{
             break;
     }
     
-    ofSetColor(255, 255, 255);
+    ofSetColor(WHITE);
     ofDrawBitmapString(stateString, _STATUS_BAR_OFFSET.x + 5, _STATUS_BAR_OFFSET.y + paddingY);
 }
 
@@ -171,15 +171,9 @@ void WorldView::drawRoomSoFar(const std::tuple<const std::vector<ofVec2f>&, cons
 }
 
 //  Called when the room is fully build but no simulation is running
-void WorldView::drawNormalState(const std::tuple<const Room&, const float, const Source&, const Listener&>& data) const
+void WorldView::drawNormalState(const Room& room, const float scale, const Source& source, const Listener& listener) const
 {
     drawWindow();
-    
-    //  Unpack the tuple
-    const Room& room = std::get<0>(data);
-    const float worldScale = std::get<1>(data);
-    const Source source = std::get<2>(data);
-    const Listener& listener = std::get<3>(data);
     
     //  Draw walls
     ofSetLineWidth(5.0);
@@ -193,18 +187,18 @@ void WorldView::drawNormalState(const std::tuple<const Room&, const float, const
         const auto endPoint = wall.getEnd();
         
         //  Draw wall
-        ofSetColor(255, 255, 255);
+        ofSetColor(WHITE);
         ofDrawLine(startPoint, endPoint);
         
         //  Draw Normal Vector
-        ofSetColor(255, 127, 0);
+        ofSetColor(RED);
         const auto normalStartPoint = 0.5 * wall.getVector() + startPoint;
         const auto normalEndPoint = normalStartPoint + (20.0 * wall.getNormalUnitVector());
         ofDrawLine(normalStartPoint, normalEndPoint);
         
         //  Draw length of wall
-        ofSetColor(255, 255, 255);
-        std::string wallLengthString = to_string(wall.getLength() * worldScale) + " m";
+        ofSetColor(WHITE);
+        std::string wallLengthString = to_string(wall.getLength() * scale) + " m";
         ofDrawBitmapString(wallLengthString, normalStartPoint.x + 10, normalStartPoint.y - 20);
     }
     
@@ -222,20 +216,13 @@ void WorldView::drawNormalState(const std::tuple<const Room&, const float, const
 
 //  Draw the room and the acoustic rays as the simulation is running
 //  This function is also called when the simulation is complete (when the program state is SIM_DONE)
-void WorldView::drawSimulateState(const SimulationData& data) const
+void WorldView::drawSimulateState(const Room& room, const float scale, const Source& source, const Listener& listener, const std::vector<Ray>& rays) const
 {
-    //  Unpack the tuple
-    const Room& room = std::get<0>(data);
-    const float worldScale = std::get<1>(data);
-    const Source source = std::get<2>(data);
-    const Listener& listener = std::get<3>(data);
-    const std::vector<Ray>& rays = std::get<4>(data);
-    
-    drawNormalState(std::make_tuple(room, worldScale, source, listener));
+    drawNormalState(room, scale, source, listener);
     
     //  Draw the rays
     ofSetLineWidth(0.5);
-    ofSetColor(255, 255, 255);
+    ofSetColor(WHITE);
     for (const auto& ray : rays)
     {
         ofDrawCircle(ray.getPosition(), 2);
@@ -256,12 +243,12 @@ void WorldView::drawSimulationProgress(const float timeRatio) const
     const float progressBarWidth = 500.0;
     const float progressBarHeight = 30.0;
     
-    ofSetColor(255, 255, 255, 40);
+    ofSetColor(WHITE, 40);
     ofDrawRectangle(_WINDOW_OFFSET.x + _STATUS_BAR_COL_LENGTH, _STATUS_BAR_OFFSET.y + 30, progressBarWidth, progressBarHeight);
-    ofSetColor(210, 84, 143);
+    ofSetColor(PINK);
     ofDrawRectangle(_WINDOW_OFFSET.x + _STATUS_BAR_COL_LENGTH, _STATUS_BAR_OFFSET.y + 30, progressBarWidth * timeRatio, progressBarHeight);
     
-    ofSetColor(255, 255, 255);
+    ofSetColor(WHITE);
     std::string progressString = to_string(timeRatio * 100.0) + " %";
     ofDrawBitmapString(progressString, _WINDOW_OFFSET.x + _STATUS_BAR_COL_LENGTH, _STATUS_BAR_OFFSET.y + 80);
 }
@@ -277,26 +264,26 @@ void WorldView::drawSimulateStateDebug(const SimulationDataDebug& data) const
     const Listener& listener = std::get<3>(data);
     const ofVec2f rayPos = std::get<4>(data);
     
-    drawNormalState(std::make_tuple(room, worldScale, source, listener));
+//    drawNormalState(std::make_tuple(room, worldScale, source, listener));
     
-    ofSetColor(255, 255, 255);
+    ofSetColor(WHITE);
     ofDrawCircle(rayPos, 25);
 }
 
 //  Draw the window frame where the room lives
 void WorldView::drawWindow() const
 {
-    ofSetColor(255, 255, 255);
+    ofSetColor(WHITE);
     ofDrawBitmapString("World View", _WINDOW_OFFSET.x, _WINDOW_OFFSET.y - 10);
     
     ofFill();
-    ofSetColor(255, 255, 255, 80);
+    ofSetColor(WHITE, 80);
     ofDrawRectangle(_WINDOW_OFFSET.x, _WINDOW_OFFSET.y, _WINDOW_DIMENSIONS.x, _WINDOW_DIMENSIONS.y);
 }
 
 void WorldView::drawCursorPosInStatusBar(const ofVec2f pos) const
 {
-    ofSetColor(255, 255, 255);
+    ofSetColor(WHITE);
     std::string posString = "x: " + to_string(pos.x) + "\n" + "y: " + to_string(pos.y);
     ofDrawBitmapString(posString, _STATUS_BAR_OFFSET.x + _STATUS_BAR_COL_LENGTH, _STATUS_BAR_OFFSET.y + 40);
 }

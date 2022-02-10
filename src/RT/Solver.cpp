@@ -35,18 +35,13 @@ void Solver::simulationLoop()
         {
             if (!_simulationPaused)
             {
-                //  If the snapshot of the simulation is requested, peel off a copy of the states of the rays
-                if (_snapshotRequested)
+                if (_iteration >= _totalIterations)
                 {
-                    _raySnapshot.clear();
-                    for (const auto& ray : _rays)
-                        _raySnapshot.push_back(ray);
-                    
-                    _snapshotRequested = false;
-                    
-                    std::lock_guard<std::mutex> readyGuard(_snapshotDoneMutex);
-                    _snapshotIsReady = true;
+                    _simulationActive = false;
+                    break;
                 }
+                
+                detectListenerCollision();
                 
                 //  Update rays
                 for (auto& ray : _rays)
@@ -56,12 +51,7 @@ void Solver::simulationLoop()
                 }
                 
                 _currentTime += _simParameters.timeStep;
-                
-                if (_currentTime >= _simParameters.simulationTime)
-                {
-                    _simulationActive = false;
-                    break;
-                }
+                _iteration += 1;
             }
             
             if (_stopSimulationRequested)
@@ -95,6 +85,12 @@ bool Solver::startSimulation(SolverInput parameters)
         angle += angleDelta;
     }
     
+    //  Reserve memory for IRs
+    const float numSamples = (parameters.simulationTime / parameters.timeStep) + 1.0;
+    _irLeft = std::move(std::vector<float>(static_cast<size_t>(numSamples), 0.0));
+    _irRight = std::move(std::vector<float>(static_cast<size_t>(numSamples), 0.0));
+    _totalIterations = static_cast<size_t>(numSamples);
+    
     _simulationActive = true;
     
     std::thread sim_thread([&]{ simulationLoop(); });
@@ -119,37 +115,34 @@ void Solver::requestSimulationStop()
         _stopSimulationRequested = true;
 }
 
-void Solver::requestSimulationSnapshot()
+bool Solver::getSnapshotData(std::vector<Ray>& raysDest, std::vector<float>& irLeftDest, std::vector<float>& irRightDest)
 {
     std::lock_guard<std::mutex> guard(_simLock);
-    _snapshotRequested = true;
-}
-
-bool Solver::getRays(std::vector<Ray>& destinationVec)
-{
-    std::lock_guard<std::mutex> guard(_snapshotDoneMutex);
-    if (_snapshotIsReady)
-    {
-        destinationVec = std::move(_raySnapshot);
-        _snapshotIsReady = false;
-        
-        return true;
-    }
-    return false;
+    
+    if (raysDest.empty())
+        std::copy(begin(_rays), end(_rays), std::back_inserter(raysDest));
+    else
+        std::copy(begin(_rays), end(_rays), begin(raysDest));
+    
+    std::copy(begin(_irLeft), end(_irLeft), begin(irLeftDest));
+    std::copy(begin(_irRight), end(_irRight), begin(irRightDest));
+    
+    return true;
 }
 
 void Solver::reset()
 {
     _simulationActive = false;
     _simulationPaused = false;
-    _snapshotRequested = false;
-    _snapshotIsReady = false;
     _stopSimulationRequested = false;
     _currentTime = 0.0;
+    _iteration = 0;
+    _totalIterations = 0;
     
     _raySnapshot.clear();
     _rays.clear();
-    
+    _irLeft.clear();
+    _irRight.clear();
 }
 
  //  Ray reflection uses the Householder reflection matrix to determine the new velocity vector for a ray
@@ -191,8 +184,6 @@ void Solver::detectListenerCollision()
 {
     float summedRaysLeft = 0.f;
     float summedRaysRight = 0.f;
-    //                    float numLeftCollisions = 0;
-    //                    float numRightCollisions = 0;
     
     //  TODO: [Opt] Don't check every single ray.  Only the ones close to reaching the listener
     for (auto& ray : _rays)
@@ -211,15 +202,15 @@ void Solver::detectListenerCollision()
                     summedRaysLeft += ray.getLevel();
                 else
                     summedRaysRight += ray.getLevel();
+                
+                //  TODO:  [Phy] Don't deactivate?  Instead attenuate and continue propagation
+                //  Deactive ray
+                //ray.setInactive();
             }
-            
-            //  TODO:  [Phy] Don't deactivate?  Instead attenuate and continue propagation
-            //  Deactive ray
-            ray.setInactive();
         }
-        
-        //  Store summedRays into IR
-//        _simParameters.listener->addSampleToIR(LEFT, summedRaysLeft);
-//        _simParameters.listener->addSampleToIR(RIGHT, summedRaysRight);
     }
+    
+    //  Store summedRays into IR
+    _irLeft.at(_iteration) = summedRaysLeft;
+    _irRight.at(_iteration) = summedRaysRight;
 }

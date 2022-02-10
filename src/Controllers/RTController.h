@@ -2,6 +2,7 @@
 #define _RTCONTROLLER_H
 
 #include "WorldView.h"
+#include "GraphView.hpp"
 #include "RTModel.h"
 #include "ofMain.h"
 #include "RTCommon.h"
@@ -35,6 +36,8 @@ class RTController
     static const float SNAP_THRESHOLD;
     
     WorldView   _worldView;
+    GraphView   _graphView;
+    
     RTModel     _model;
     
     RTState     _currentState = START;

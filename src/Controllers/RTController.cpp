@@ -172,9 +172,7 @@ void RTController::draw() const
             
         case NORMAL:
         {
-            //  Package data for drawing the room
-            auto data = std::make_tuple(_model.getRoom(), _model.getWorldScale(), _model.getSoundSource(), _model.getListener());
-            _worldView.drawNormalState(data);
+            _worldView.drawNormalState(_model.getRoom(), _model.getWorldScale(), _model.getSoundSource(), _model.getListener());
             break;
         }
             
@@ -182,10 +180,9 @@ void RTController::draw() const
         case SIM_PAUSED:
         case SIM_DONE:
         {
-
-            auto data = std::make_tuple(_model.getRoom(), _model.getWorldScale(), _model.getSoundSource(), _model.getListener(), _model.getRays());
-            _worldView.drawSimulateState(data);
+            _worldView.drawSimulateState(_model.getRoom(), _model.getWorldScale(), _model.getSoundSource(), _model.getListener(), _model.getRays());
             _worldView.drawSimulationProgress(_model.getCurrentSimulationTime() / _model.getSimulationTime());
+            _graphView.draw(_model.getImpulseResponse(LEFT), _model.getImpulseResponse(RIGHT));
 
             break;
         }
@@ -211,10 +208,7 @@ void RTController::update()
         case SIM_RUNNING:
         {
             if (_model.getSimulationStatus())
-            {
-                _model.requestSnapshot();
                 _model.updateSnapshot();
-            }
             else
                 _currentState = SIM_DONE;
             
@@ -250,6 +244,7 @@ void RTController::onStartSimClicked()
     {
         _model.startRayTrace();
         _currentState = SIM_RUNNING;
+        _graphView.setup();
     }
 }
 

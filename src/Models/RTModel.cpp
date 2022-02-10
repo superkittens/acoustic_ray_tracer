@@ -42,6 +42,13 @@ bool RTModel::startRayTrace()
     inputs.worldScale = _worldScale;
     
     _raySnapshots.clear();
+    _irLeftSnapshot.clear();
+    _irRightSnapshot.clear();
+    
+    const float numIRSamples = (_simulationTime / _timeStep) + 1.0;
+    _irLeftSnapshot = std::move(std::vector<float>(static_cast<size_t>(numIRSamples), 0.0));
+    _irRightSnapshot = std::move(std::vector<float>(static_cast<size_t>(numIRSamples), 0.0));
+    
     _snapshotRequested = false;
     
     _solver.startSimulation(inputs);
@@ -59,27 +66,18 @@ void RTModel::stopRayTrace()
     _solver.requestSimulationStop();
 }
 
-void RTModel::requestSnapshot()
-{
-    if (!_snapshotRequested)
-    {
-        _snapshotRequested = true;
-        _solver.requestSimulationSnapshot();
-    }
-}
-
 void RTModel::updateSnapshot()
 {
-    if (_snapshotRequested)
-    {
-        if (_solver.getRays(_raySnapshots))
-            _snapshotRequested = false;
-    }
+    if (_solver.getSnapshotData(_raySnapshots, _irLeftSnapshot, _irRightSnapshot))
+        _snapshotRequested = false;
 }
 
-const std::vector<Ray>& RTModel::getRays() const
+const std::vector<float>& RTModel::getImpulseResponse(const Direction& dir) const
 {
-    return _raySnapshots;
+    if (dir == LEFT)
+        return _irLeftSnapshot;
+    
+    return _irRightSnapshot;
 }
 
 void RTModel::reset()
@@ -88,4 +86,6 @@ void RTModel::reset()
     _source.setVisible(false);
     _listener.setVisible(false);
     _raySnapshots.clear();
+    _irLeftSnapshot.clear();
+    _irRightSnapshot.clear();
 }

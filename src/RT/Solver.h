@@ -34,15 +34,16 @@ private:
 
     std::vector<Ray> _rays;
     std::vector<Ray> _raySnapshot;
+    std::vector<float> _irLeft, _irRight;
+    std::vector<float> _irLeftSnapshot, _irRightSnapshot;
     
     float       _currentTime;
+    size_t      _iteration;
+    size_t      _totalIterations;
     SolverInput _simParameters;
     
-    bool        _snapshotRequested = false;
-    bool        _snapshotIsReady = false;
-    
     mutable std::mutex  _simLock;
-    std::mutex  _snapshotDoneMutex;
+    std::mutex          _snapshotDoneMutex;
     
     void detectCollisionWithWallAndReflect(Ray& ray);
     void detectListenerCollision();
@@ -60,12 +61,9 @@ public:
     void    requestSimulationStop();
     void    reset();
     
-    void    requestSimulationSnapshot();
-    
-    bool    getRays(std::vector<Ray>& destinationVec);
+    bool    getSnapshotData(std::vector<Ray>& raysDest, std::vector<float>& irLeftDest, std::vector<float>& irRightdest);
     
     const ofVec2f&   getRay() const { return _rays.at(0).getPosition(); }   // Debug only
-    std::vector<float>& getImpulseResponse(const size_t listenerID);
 //    const std::vector<float>& getImpulseResponse(const Direction& dir);
 };
 

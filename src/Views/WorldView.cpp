@@ -223,9 +223,19 @@ void WorldView::drawSimulateState(const Room& room, const float scale, const Sou
     //  Draw the rays
     ofSetLineWidth(0.5);
     ofSetColor(WHITE);
-    for (const auto& ray : rays)
+    
+    ofVec2f prevRay = rays[0].getPosition();
+    ofDrawCircle(rays[0].getPosition(), 2);
+    
+    for (auto i = 1; i < rays.size(); ++i)
     {
-        ofDrawCircle(ray.getPosition(), 2);
+        ofDrawCircle(rays[i].getPosition(), 2);
+        ofDrawLine(prevRay, rays[i].getPosition());
+        prevRay = rays[i].getPosition();
+    }
+//    for (const auto& ray : rays)
+//    {
+//        ofDrawCircle(ray.getPosition(), 2);
 //        ofVec2f prevPoint = ray.getRayPaths().at(0);
 //        for (auto i = 1; i < ray.getRayPaths().size(); ++i)
 //        {
@@ -234,7 +244,7 @@ void WorldView::drawSimulateState(const Room& room, const float scale, const Sou
 //        }
 //
 //        ofDrawLine(prevPoint, ray.getPosition());
-    }
+//    }
 }
 
 //  Draw the simulation progress bar on the status bar

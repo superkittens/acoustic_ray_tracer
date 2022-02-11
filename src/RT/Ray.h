@@ -36,7 +36,7 @@ class Ray
     void    setVelocity(const ofVec2f& v) { _v = v; }
     const ofVec2f& getPosition() const { return _s; }
     void    setPosition(const ofVec2f& s) { _s = s; }
-    void    signalTrajectoryChange() { _trajectoryChanged = true; }
+    void    signalTrajectoryChange() { _trajectoryChanged = true; } //  Used to add vertex in ray's travelled path
     void    setInactive() { _active = false; }
     float   getLevel() const { return _level * _sign; }
     bool    getActiveStatus() const { return _active; }

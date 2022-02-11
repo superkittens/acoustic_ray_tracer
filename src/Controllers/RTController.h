@@ -6,6 +6,7 @@
 #include "RTModel.h"
 #include "ofMain.h"
 #include "RTCommon.h"
+#include "RTFileWriter.hpp"
 
 class RTController
 {
@@ -31,6 +32,8 @@ class RTController
     void onSimTimeSliderChanged(float& value);
     void onNumRaysChanged(size_t& value);
     void onTimeStepChanged(float& value);
+    
+    void onWriteIRClicked();
 
     private:
     static const float SNAP_THRESHOLD;
@@ -43,6 +46,11 @@ class RTController
     RTState     _currentState = START;
     
     bool        _drawStraightLines = false;
+    
+    RTFileWriter    _fileWriter;
+    Direction       _currentIRBeingWritten = LEFT;
+    
+    size_t      _counter = 0;
     
     ofVec2f snapCursor(const ofVec2f& cursorPos);
     ofVec2f snapCursorToFirstPoint(const ofVec2f& cursorPos);

@@ -30,7 +30,7 @@ void Ray::update()
         {
             _path.push_back(_s);
             _trajectoryChanged = false;
-            _sign *= -1.f;
+            _sign *= 1.f;
         }
 
         //  If the signal level is below the threshold, inactivate the ray

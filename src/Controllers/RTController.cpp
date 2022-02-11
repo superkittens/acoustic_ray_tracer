@@ -207,10 +207,15 @@ void RTController::update()
         //  Get the latest ray data from the solver when running the simulation
         case SIM_RUNNING:
         {
-            if (_model.getSimulationStatus())
-                _model.updateSnapshot();
-            else
-                _currentState = SIM_DONE;
+            _counter++;
+            if (_counter >= 60)
+            {
+                _counter = 0;
+                if (_model.getSimulationStatus())
+                    _model.updateSnapshot();
+                else
+                    _currentState = SIM_DONE;
+            }
             
             break;
         }
@@ -285,6 +290,23 @@ void RTController::onNumRaysChanged(size_t& value)
 void RTController::onTimeStepChanged(float& value)
 {
     _model.setTimeStep(value);
+}
+
+void RTController::onWriteIRClicked()
+{
+    //  IRs can only be written to file AFTER a simulation is complete
+    if (_currentState == SIM_DONE)
+    {
+        //  We first need to get the directory where the user wants to write the IR file
+        auto result = ofSystemLoadDialog("Choose Directory", true, "");
+        auto filePath = result.getPath();
+        
+//        _currentState = IR_WRITE;
+        _currentIRBeingWritten = LEFT;
+        
+        _fileWriter.writeIRToFile(_model.getImpulseResponse(LEFT), filePath + "/left_ir.txt", true);
+        _fileWriter.writeIRToFile(_model.getImpulseResponse(RIGHT), filePath + "/right_ir.txt", true);
+    }
 }
 
 ofVec2f RTController::snapCursor(const ofVec2f& cursorPos)

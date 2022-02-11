@@ -47,6 +47,9 @@ class MainWindow
     ofxInputField<size_t> _numRaysField;
     ofxLabel        _timeStepLabel;
     ofxInputField<float> _timeStepField;
+    
+    ofxPanel        _miscPanel;
+    ofxButton       _writeIRButton;
 };
 
 #endif

@@ -39,6 +39,11 @@ void MainWindow::setup()
     _numRaysField.addListener(&_controller, &RTController::onNumRaysChanged);
     _timeStepField.addListener(&_controller, &RTController::onTimeStepChanged);
     
+    _miscPanel.setup("Misc Controls", "misc_settings.xml", 10, 750);
+    _miscPanel.add(_writeIRButton.setup("Write IR to File"));
+    
+    _writeIRButton.addListener(&_controller, &RTController::onWriteIRClicked);
+    
     _controller.setup(MIN_SCALE, MIN_SIM_TIME, START_TIME_STEP, MIN_NUM_RAYS);
 }
 
@@ -77,6 +82,7 @@ void MainWindow::draw()
     _controller.draw();
     _roomBuildPanel.draw();
     _simulationPanel.draw();
+    _miscPanel.draw();
 }
 
 void MainWindow::update()

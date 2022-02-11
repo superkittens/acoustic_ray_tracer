@@ -224,14 +224,14 @@ void WorldView::drawSimulateState(const Room& room, const float scale, const Sou
     ofSetLineWidth(0.5);
     ofSetColor(WHITE);
     
-    ofVec2f prevRay = rays[0].getPosition();
-    ofDrawCircle(rays[0].getPosition(), 2);
+//    ofVec2f prevRay = rays[0].getPosition();
+//    ofDrawCircle(rays[0].getPosition(), 2);
     
-    for (auto i = 1; i < rays.size(); ++i)
+    for (auto i = 0; i < rays.size(); ++i)
     {
         ofDrawCircle(rays[i].getPosition(), 2);
-        ofDrawLine(prevRay, rays[i].getPosition());
-        prevRay = rays[i].getPosition();
+//        ofDrawLine(prevRay, rays[i].getPosition());
+//        prevRay = rays[i].getPosition();
     }
 //    for (const auto& ray : rays)
 //    {

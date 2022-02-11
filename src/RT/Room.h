@@ -17,7 +17,6 @@ private:
     bool        _hasBoundingBox = false;
     ofRectangle _boundingBox;
 
-    ofVec2f calculatePointNormal(const ofVec2f& point) const;
 
 public:
     Wall(const ofVec2f& start, const ofVec2f& end);
@@ -32,6 +31,7 @@ public:
     ofVec2f getNormalUnitVector() const { return _normalVec; }
 
     bool    isPointOutsideWall(const ofVec2f& point) const;
+    ofVec2f calculatePointNormal(const ofVec2f& point) const;
 };
 
 

@@ -33,14 +33,37 @@ ofVec2f Wall::calculatePointNormal(const ofVec2f& point) const
 bool Wall::isPointOutsideWall(const ofVec2f& point) const
 {
     //  Check to see if the point is within the bounding box
-    if (_hasBoundingBox && !_boundingBox.inside(point))
-        return false;
+//    if (_hasBoundingBox && !_boundingBox.inside(point))
+//        return false;
+    
+    const ofVec2f normal = calculatePointNormal(point);
+    const float dotProduct = _normalVec.dot(normal.getNormalized());
 
-    ofVec2f normal = calculatePointNormal(point);
-    float dotProduct = _normalVec.dot(normal.getNormalized());
-
-    if (dotProduct < 0)
+    if (dotProduct >= -0.5f && dotProduct <= 0.5f)
         return true;
+    
+    if (dotProduct < 0)
+    {
+        if (_vector.getNormalized().x > 0)
+        {
+            if (_vector.getNormalized().y > 0)
+                if ((point.x >= _start.x && point.x <= _end.x) || (point.y >= _start.y && point.y <= _end.y))
+                    return true;
+            
+            if ((point.x >= _start.x && point.x <= _end.x) || (point.y <= _start.y && point.y >= _end.y))
+                return true;
+        
+        }
+        else
+        {
+            if (_vector.getNormalized().y > 0)
+                if ((point.x <= _start.x && point.x >= _end.x) || (point.y >= _start.y && point.y <= _end.y))
+                    return true;
+            
+            if ((point.x <= _start.x && point.x >= _end.x) || (point.y <= _start.y && point.y >= _end.y))
+                return true;
+        }
+    }
 
     return false;
 }

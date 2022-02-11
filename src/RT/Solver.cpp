@@ -150,8 +150,8 @@ void Solver::reset()
  void Solver::reflectRay(const ofVec2f& wallUnitVec, Ray& ray)
  {
      //  Move ray back one iteration
-     ofVec2f prevRayPosition = ray.getPosition() - ray.getVelocity();
-     ray.setPosition(prevRayPosition);
+//     ofVec2f prevRayPosition = ray.getPosition() - ray.getVelocity();
+//     ray.setPosition(prevRayPosition);
 
      float wallLengthSqured = wallUnitVec.lengthSquared();
      float n = (2 * (wallUnitVec.x * wallUnitVec.x) / wallLengthSqured) - 1;
@@ -175,6 +175,10 @@ void Solver::reset()
          if (w.isPointOutsideWall(ray.getPosition()))
          {
              ray.signalTrajectoryChange();
+             
+             // Move the ray back to inside the wall
+//             const ofVec2f normal = w.calculatePointNormal(ray.getPosition());
+//             ray.setPosition(ray.getPosition() - 2 * normal);
              reflectRay(w.getUnitVector(), ray);
          }
      }
@@ -184,6 +188,8 @@ void Solver::detectListenerCollision()
 {
     float summedRaysLeft = 0.f;
     float summedRaysRight = 0.f;
+    float numRaysCollidedLeft = 1.0;
+    float numRaysCollidedRight = 1.0;
     
     //  TODO: [Opt] Don't check every single ray.  Only the ones close to reaching the listener
     for (auto& ray : _rays)
@@ -199,13 +205,19 @@ void Solver::detectListenerCollision()
             if (didCollide)
             {
                 if (collisionDirection == LEFT)
+                {
                     summedRaysLeft += ray.getLevel();
+                    numRaysCollidedLeft += 1.0;
+                }
                 else
+                {
                     summedRaysRight += ray.getLevel();
+                    numRaysCollidedRight += 1.0;
+                }
                 
                 //  TODO:  [Phy] Don't deactivate?  Instead attenuate and continue propagation
                 //  Deactive ray
-                //ray.setInactive();
+                ray.setInactive();
             }
         }
     }

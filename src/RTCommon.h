@@ -23,7 +23,8 @@ typedef enum
     NORMAL,
     SIM_RUNNING,
     SIM_PAUSED,
-    SIM_DONE
+    SIM_DONE,
+    IR_WRITE,
 }RTState;
 
 #endif /* RTCommon_h */
